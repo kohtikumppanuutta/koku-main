@@ -1,0 +1,13 @@
+
+
+Maven repositories
+------------------
+http://mvnrepository.com/
+https://repository.jboss.org/nexus
+
+
+Jboss EAP 5.1 standards
+-----------------------
+http://www.jboss.com/products/platforms/application/standards/
+
+
