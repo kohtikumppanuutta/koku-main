@@ -1,4 +1,6 @@
 ﻿
  The vocabulary can be found in the Tampere confluence:
- https://jklext-confluence.ixonos.local/display/KOKU/Official+domain+vocabulary
+ 
+ https://wiki.tampere.fi/confluence/display/KKTP/Vocabulary+Finnish-English
+
  
