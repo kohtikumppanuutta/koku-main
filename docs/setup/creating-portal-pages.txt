@@ -1,0 +1,26 @@
+Add page for KKS portlet
+------------------------
+- Administration -> Page Management -> Add page
+- Node Name: KKS
+- Display Name: KKS
+- Click next
+- Select "Empty Layout" and press next
+- Add "Two Columns Autofit layout" from "Page Editor" widget (up right)
+- Select "Applications" tab and drag "Message Navigation Portlet" to left and "KKS" to right
+- Edit portlet settings (pen icon):
+    Uncheck following checboxes: 
+    Show Info Bar
+    Show Portlet Mode
+    Show Window State
+- Select "Containers" tab from "Page Editor" widget (up right)
+    Edit the left container (holding navi portlet):
+    Width: 220 px
+    Edit the right container (holding KKS portlet):
+    Width: 730 px
+
+Add page for PYH portlet
+------------------------
+- Administration -> Page Management -> Add page
+- Node Name: PYH
+- Display Name: PYH
+- The rest goes same way as above, except drag "pyh" portlet to right column
