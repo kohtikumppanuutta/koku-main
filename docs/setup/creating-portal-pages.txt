@@ -22,6 +22,7 @@ Add page for KKS portlet
 Add page for PYH portlet
 ------------------------
 - Administration -> Page Management -> Add page
+- Set page node to root (press .. icon)
 - Node Name: PYH
 - Display Name: PYH
 - The rest goes same way as above, except drag "pyh" portlet to right column
