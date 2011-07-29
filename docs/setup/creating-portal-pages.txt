@@ -1,6 +1,7 @@
 Add page for KKS portlet
 ------------------------
 - Administration -> Page Management -> Add page
+- Set page node to root (press .. icon)
 - Node Name: KKS
 - Display Name: KKS
 - Click next
