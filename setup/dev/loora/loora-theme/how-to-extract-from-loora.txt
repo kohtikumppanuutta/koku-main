@@ -1,0 +1,39 @@
+How to extract theme from LooraSDK
+----------------------------------
+- Install newest LooraSDK
+
+- Extract the loora-sdk\jboss\server\default\deploy\TampereIntra.war to temp directory
+
+- Remove all useless directories/files from extracted directory (look what is needed from /setup/dev/loora/loora-theme/intra.war)
+
+- Override WEB-INF/web.xml with empty web.xml:
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="Loora" version="2.4"
+	xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+</web-app>
+
+- Modify layouts/Tre3070/index.jsp:
+remove: <%@ taglib uri="/WEB-INF/tre-taglib.tld" prefix="tre" %>
+remove: <tre:breadCrumbs />, <tre:topTab/>
+add "<div id="loginIframe"></div>" above tag: <p:region regionName='dashboardnav' regionID='dashboardnav'/>
+
+- Modify layouts/include/oikea_reuna.jsp:
+remove: <%@ taglib uri="/WEB-INF/tre-taglib.tld" prefix="tre" %>
+remove: <tre:shortcut/>, <tre:bookmark/>, <tre:adminNavigation/>
+
+- Modify WEB-INF/portal_themes.xml: remove tracking JS:
+	<script>
+ $(document).ready(function(){
+   $("a").bind("mousedown", function(e){
+      contentId = "";
+      if (document.clickinfo) {
+        contentId = document.clickinfo.content_id.value;
+      }
+			$.post("/intra/click", { url: e.target.attributes['href'].value, name: e.target.text, contentId: contentId } );
+    });
+ });
+</script>
+
+- Create new war file and name it "intra.war" (theme contains some hard-coded URLs, jos the war name must be "intra.war")
