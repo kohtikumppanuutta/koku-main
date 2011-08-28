@@ -2,7 +2,16 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>kohti-kumppanuutta</groupId>
   <artifactId>koku-common</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <name>koku-common</name>
   <description>Artifacts that are reusable across different layers of Kohti kumppanuutta solution.</description>
+  
+  <distributionManagement>
+    <repository>
+      <id>ElasticService.com</id>
+      <name>ElasticService.com-releases</name>
+      <url>https://m2.elasticservice.com/artifactory/koku</url>
+    </repository>
+  </distributionManagement>
+  
 </project>
