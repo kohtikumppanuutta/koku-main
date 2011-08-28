@@ -6,7 +6,7 @@ package fi.koku;
  * 
  * @author aspluma
  */
-public class KoKuFaultException extends Exception {
+public class KoKuFaultException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
   public KoKuFaultException(String message) {
