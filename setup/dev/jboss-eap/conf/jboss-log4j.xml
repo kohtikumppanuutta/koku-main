@@ -16,16 +16,6 @@
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
 
-
-  <appender name="KOKU" class="org.jboss.logging.appender.DailyRollingFileAppender">
-    <errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/>
-    <param name="File" value="${jboss.server.home.dir}/log/koku.log"/>
-    <param name="Append" value="true"/>
-    <param name="DatePattern" value="'.'yyyy-MM-dd"/> <layout class="org.apache.log4j.PatternLayout">
-    <param name="ConversionPattern" value="%d %-5p [%c{2}] %m%n"/> </layout>
-  </appender>
-
-
    <!-- ================================= -->
    <!-- Preserve messages in a local file -->
    <!-- ================================= -->
@@ -86,6 +76,15 @@
          <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] %m%n"/>
       </layout>
    </appender>
+
+<appender name="KOKU" class="org.jboss.logging.appender.DailyRollingFileAppender">
+<errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/>
+<param name="File" value="${jboss.server.home.dir}/log/koku.log"/>
+<param name="Append" value="false"/>
+<param name="DatePattern" value="'.'yyyy-MM-dd"/> <layout class="org.apache.log4j.PatternLayout">
+<param name="ConversionPattern" value="%d %-5p [%c{2}] %m%n"/> </layout>
+</appender>
+
 
    <!-- ====================== -->
    <!-- More Appender examples -->
@@ -353,17 +352,6 @@
    </category>
    -->
 
-  <category name="fi.koku">
-    <priority value="debug"/>
-    <appender-ref ref="KOKU"/> 
-  </category>
-
-  <category name="org.hibernate.SQL">
-    <priority value="trace"/>
-    <appender-ref ref="KOKU"/> 
-  </category>
-
-
    <!-- Clustering logging -->
    <!-- Uncomment the following to redirect the org.jgroups and
       org.jboss.ha categories to a cluster.log file.
@@ -388,6 +376,17 @@
      <appender-ref ref="CLUSTER"/>
    </category>
    -->
+
+<category name="fi.koku">
+   <priority value="debug"/>
+   <appender-ref ref="KOKU"/> 
+</category>
+
+<category name="org.hibernate.SQL">
+   <priority value="trace"/>
+   <appender-ref ref="KOKU"/> 
+</category>
+
    
    <!-- ======================= -->
    <!-- Setup the Root category -->
