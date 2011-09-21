@@ -71,7 +71,7 @@ CREATE TABLE `community` (
 
 LOCK TABLES `community` WRITE;
 /*!40000 ALTER TABLE `community` DISABLE KEYS */;
-INSERT INTO `community` VALUES (14,'guardian_community','guardian_community_1',0),(15,'family_community','family_community_1',0);
+INSERT INTO `community` VALUES (14,'guardian_community','guardian_community_1',0),(15,'family_community','family_community_1',2);
 /*!40000 ALTER TABLE `community` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -91,7 +91,7 @@ CREATE TABLE `community_member` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `community_id` (`community_id`,`member_pic`),
   CONSTRAINT `community_member_ibfk_1` FOREIGN KEY (`community_id`) REFERENCES `community` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -100,7 +100,7 @@ CREATE TABLE `community_member` (
 
 LOCK TABLES `community_member` WRITE;
 /*!40000 ALTER TABLE `community_member` DISABLE KEYS */;
-INSERT INTO `community_member` VALUES (5,14,1,'010101-1010','guardian'),(6,14,2,'111111-1111','dependant'),(7,14,3,'222222-2222','dependant'),(8,14,4,'333333-3333','dependant'),(9,15,1,'010101-1010','father'),(10,15,2,'111111-1111','dependant'),(11,15,3,'222222-2222','dependant'),(12,15,4,'333333-3333','dependant');
+INSERT INTO `community_member` VALUES (5,14,1,'010101-1010','guardian'),(6,14,2,'111111-1111','dependant'),(7,14,3,'222222-2222','dependant'),(8,14,4,'333333-3333','dependant'),(9,15,1,'010101-1010','father'),(10,15,2,'111111-1111','child'),(11,15,3,'222222-2222','child'),(12,15,4,'333333-3333','child');
 /*!40000 ALTER TABLE `community_member` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -206,4 +206,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-09-21 10:11:07
+-- Dump completed on 2011-09-21 15:45:11
