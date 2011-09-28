@@ -5,14 +5,22 @@ package fi.koku;
  * 
  * @author aspluma
  */
-public class KoKuContingencyException extends Exception {
+public class KoKuContingencyException extends Exception implements KoKuException {
   private static final long serialVersionUID = 1L;
 
-  public KoKuContingencyException(String message, Throwable cause) {
+  private int errorCode;
+  
+  public KoKuContingencyException(int errorCode, String message, Throwable cause) {
     super(message, cause);
+    this.errorCode = errorCode;
   }
 
-  public KoKuContingencyException(String message) {
+  public KoKuContingencyException(int errorCode, String message) {
     super(message);
+    this.errorCode = errorCode;
+  }
+
+  public int getErrorCode() {
+    return errorCode;
   }
 }
