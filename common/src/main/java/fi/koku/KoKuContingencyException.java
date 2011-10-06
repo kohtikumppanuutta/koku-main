@@ -4,6 +4,7 @@ package fi.koku;
  * Contingency exception base class.
  * 
  * @author aspluma
+ * @author laukksa
  */
 public class KoKuContingencyException extends Exception implements KoKuException {
   private static final long serialVersionUID = 1L;

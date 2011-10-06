@@ -2,9 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>kohti-kumppanuutta</groupId>
   <artifactId>koku-common</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.4-SNAPSHOT</version>
   <name>koku-common</name>
   <description>Artifacts that are reusable across different layers of Kohti kumppanuutta solution.</description>
+  
+  <properties>
+    <junit.version>4.8.2</junit.version>  
+  </properties>
   
   <distributionManagement>
     <repository>
@@ -14,4 +18,12 @@
     </repository>
   </distributionManagement>
   
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>  
+  </dependencies>
 </project>
