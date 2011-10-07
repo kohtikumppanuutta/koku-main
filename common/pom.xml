@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>kohti-kumppanuutta</groupId>
   <artifactId>koku-common</artifactId>
-  <version>0.0.5-SNAPSHOT</version>
+  <version>0.0.6-SNAPSHOT</version>
   <name>koku-common</name>
   <description>Artifacts that are reusable across different layers of Kohti kumppanuutta solution.</description>
   
