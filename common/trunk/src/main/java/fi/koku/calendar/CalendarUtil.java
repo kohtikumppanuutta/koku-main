@@ -1,3 +1,11 @@
+/*
+ * Copyright 2011 Ixonos Plc, Finland. All rights reserved.
+ * Copyright 2011 Arcusys Oy, Finland. All rights reserved.
+ *
+ * You should have received a copy of the license text along with this program.
+ * If not, please contact the copyright holders (http://www.ixonos.com/, http://www.arcusys.fi/).
+ * 
+ */
 package fi.koku.calendar;
 
 import java.util.Calendar;
