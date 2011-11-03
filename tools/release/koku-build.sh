@@ -59,7 +59,7 @@ function build_packages() {
   pushd ui/$koku_rel_v
   mvn -Dkoku.build.version=$koku_rel_v clean install
   cp kks/target/kks-portlet-*.war pyh/target/pyh-portlet-*.war ../../kunpo
-  cp arcusys-portlet/koku-palvelut-portlet/target/palvelut-portlet.war arcusys-portlet/koku-message-portlet/target/koku-message-new-portlet.war \
+  cp arcusys-portlet/koku-palvelut-portlet/target/palvelut-portlet.war arcusys-portlet/koku-message-portlet/target/koku-message-portlet.war \
     arcusys-portlet/koku-taskmanager-portlet/target/koku-taskmanager-portlet.war \
     arcusys-portlet/koku-navi-portlet/target/koku-navi-portlet.war ../../kunpo
 
