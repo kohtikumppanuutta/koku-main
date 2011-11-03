@@ -50,14 +50,14 @@ function build_packages() {
   # build
   # build: services
   pushd services/$koku_rel_v
-  mvn clean install
+  mvn -Dkoku.build.version=$koku_rel_v clean install
   cp */target/*.ear ../../eap
   popd
 
   # build: ui
   # build/ui: kunpo packages
   pushd ui/$koku_rel_v
-  mvn clean install
+  mvn -Dkoku.build.version=$koku_rel_v clean install
   cp kks/target/kks-portlet-*.war pyh/target/pyh-portlet-*.war ../../kunpo
   cp intalio/target/palvelut-portlet.war arcusys-portlet/koku-message-portlet/target/koku-message-new-portlet.war \
     arcusys-portlet/koku-taskmanager-portlet/target/koku-taskmanager-portlet.war \
@@ -66,7 +66,7 @@ function build_packages() {
   # build/ui: loora packages
   sed -i'' -e 's/\/portlet" prefix=/\/portlet_2_0" prefix=/' {kks,lok}/src/main/webapp/WEB-INF/jsp/*/imports.jsp
   sed -i'' '/EPP only: start/,/EPP only: end/d' */src/main/webapp/WEB-INF/web.xml
-  mvn clean install
+  mvn -Dkoku.build.version=$koku_rel_v clean install
   cp kks/target/kks-portlet-*.war lok/target/lok-portlet-*.war ../../loora
   cp intalio/target/palvelut-portlet.war arcusys-portlet/koku-message-portlet/target/koku-message-new-portlet.war \
     arcusys-portlet/koku-taskmanager-portlet/target/koku-taskmanager-portlet.war \
