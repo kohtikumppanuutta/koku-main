@@ -51,7 +51,7 @@ function build_packages() {
   # build: services
   pushd services/$koku_rel_v
   mvn -Dkoku.build.version=$koku_rel_v clean install
-  cp */target/*.ear ../../eap
+  cp */target/*.ear intalio/target/palvelut-web-service-*.jar ../../eap
   popd
 
   # build: ui
