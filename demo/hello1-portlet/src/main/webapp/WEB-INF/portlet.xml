@@ -15,6 +15,22 @@
     </portlet-info>
   </portlet>
 
+  <filter>
+    <filter-name>helloPortletFilter</filter-name>
+    <filter-class>fi.koku.demo.ui.hello1.HelloPortletFilter</filter-class>
+    <lifecycle>RENDER_PHASE</lifecycle>
+    <lifecycle>ACTION_PHASE</lifecycle>
+    <init-param>
+      <name>requireStrongAuthSession</name>
+      <value>false</value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>helloPortletFilter</filter-name>
+    <portlet-name>hello1-portlet</portlet-name>
+  </filter-mapping>
+
+
   <container-runtime-option>
     <name>javax.portlet.renderHeaders</name>
     <value>true</value>

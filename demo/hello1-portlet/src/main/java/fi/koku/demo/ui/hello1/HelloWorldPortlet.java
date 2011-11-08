@@ -6,14 +6,12 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.GenericPortlet;
 import javax.portlet.MimeResponse;
-import javax.portlet.PortalContext;
 import javax.portlet.PortletException;
-import javax.portlet.PortletRequest;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.ProcessAction;
+import javax.portlet.RenderMode;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.portlet.RenderMode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +34,9 @@ public class HelloWorldPortlet extends GenericPortlet {
   protected void doHeaders(RenderRequest request, RenderResponse response) {
     super.doHeaders(request, response);
     System.out.println("HelloWorldPortlet: doHeaders");
-    PortalContext portalContext = request.getPortalContext();
-    String portalInfo = portalContext.getPortalInfo();
-    System.out.println("info: "+portalInfo);
+//    PortalContext portalContext = request.getPortalContext();
+//    String portalInfo = portalContext.getPortalInfo();
+//    System.out.println("info: "+portalInfo);
     
     setHeaders(request, response, "x-myheader-2", "dynamic title", "/js/puppaduppa.js");
   }
@@ -59,10 +57,10 @@ public class HelloWorldPortlet extends GenericPortlet {
  
   @RenderMode(name = "VIEW")
   public void view(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-    System.out.println("HelloWorldPortlet: render2");
+    System.out.println("HelloWorldPortlet: render");
     
-    System.out.println("markup sup: "+request.getPortalContext().getProperty(PortalContext.MARKUP_HEAD_ELEMENT_SUPPORT));
-    System.out.println("render part: "+request.getAttribute(PortletRequest.RENDER_PART));
+//    System.out.println("markup sup: "+request.getPortalContext().getProperty(PortalContext.MARKUP_HEAD_ELEMENT_SUPPORT));
+//    System.out.println("render part: "+request.getAttribute(PortletRequest.RENDER_PART));
 
     PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/hello1.jsp");
     prd.include(request, response);
@@ -71,6 +69,7 @@ public class HelloWorldPortlet extends GenericPortlet {
   @ProcessAction(name="greetAction")
   public void greet(ActionRequest request, ActionResponse response)
       throws PortletException, IOException {
+    System.out.println("HelloWorldPortlet: action");
     String msg = "Hello, "+request.getParameter("name");
     response.setRenderParameter("greeting", msg);
   }
