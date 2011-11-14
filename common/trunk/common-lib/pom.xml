@@ -3,8 +3,8 @@
   <groupId>kohti-kumppanuutta</groupId>
   <artifactId>koku-common</artifactId>
   <version>0.0.8-SNAPSHOT</version>
-  <name>koku-common</name>
-  <description>Artifacts that are reusable across different layers of Kohti kumppanuutta solution.</description>
+  <name>koku-common-lib</name>
+  <description>Classlibrary reusable across different layers of Kohti kumppanuutta solution.</description>
   
   <properties>
     <junit.version>4.8.2</junit.version>  
