@@ -7,7 +7,7 @@
     <relativePath>..</relativePath>
   </parent>
   <artifactId>koku-common-lib</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
+  <version>0.2.1-SNAPSHOT</version>
   <name>koku-common-lib</name>
   <description>Classlibrary reusable across different layers of Kohti kumppanuutta solution.</description>
   
