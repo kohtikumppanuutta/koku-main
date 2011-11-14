@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>koku-common</artifactId>
+    <groupId>kohti-kumppanuutta</groupId>
+    <version>0.2.0</version>
+    <relativePath>..</relativePath>
+  </parent>
+  <artifactId>koku-perftools</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <properties>
+    <slf4j.version>1.6.1</slf4j.version>
+    <aspectj.version>1.6.12</aspectj.version>
+  </properties>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjrt</artifactId>
+      <version>${aspectj.version}</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>
