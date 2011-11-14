@@ -1,0 +1,56 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>kohti-kumppanuutta</groupId>
+  <artifactId>koku-common</artifactId>
+  <version>0.2.0</version>
+  <name>koku-common</name>
+  <description>Artifacts reusable across different layers of Kohti kumppanuutta solution.</description>
+  <packaging>pom</packaging>
+  <properties>
+    <maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version>
+    <junit.version>4.8.2</junit.version>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <inherited>true</inherited>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler.plugin.version}</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+          <optimise>true</optimise>
+          <encoding>UTF-8</encoding>
+          <debug>true</debug>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
+  <distributionManagement>
+
+    <repository>
+      <id>ElasticService.com</id>
+      <name>ElasticService.com-releases</name>
+      <url>https://m2.elasticservice.com/artifactory/koku</url>
+    </repository>
+  
+  </distributionManagement>
+
+  <modules>
+    <module>common-lib</module>
+    <module>perftools</module>
+  </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>  
+  </dependencies>
+  
+</project>
