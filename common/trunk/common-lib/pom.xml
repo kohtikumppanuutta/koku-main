@@ -1,29 +1,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>kohti-kumppanuutta</groupId>
-  <artifactId>koku-common</artifactId>
-  <version>0.0.8-SNAPSHOT</version>
+  <parent>
+    <artifactId>koku-common</artifactId>
+    <groupId>kohti-kumppanuutta</groupId>
+    <version>0.2.0</version>
+    <relativePath>..</relativePath>
+  </parent>
+  <artifactId>koku-common-lib</artifactId>
+  <version>0.2.0-SNAPSHOT</version>
   <name>koku-common-lib</name>
   <description>Classlibrary reusable across different layers of Kohti kumppanuutta solution.</description>
   
   <properties>
-    <junit.version>4.8.2</junit.version>  
   </properties>
   
-  <distributionManagement>
-    <repository>
-      <id>ElasticService.com</id>
-      <name>ElasticService.com-releases</name>
-      <url>https://m2.elasticservice.com/artifactory/koku</url>
-    </repository>
-  </distributionManagement>
-  
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>  
   </dependencies>
 </project>
