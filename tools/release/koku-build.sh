@@ -6,6 +6,7 @@
 #
 
 modules='processes services ui'
+svn_repo_base=https://svn.mermit.fi
 
 function usage() {
   echo "usage: koku-build.sh -r release_version -c {tag_release | build_packages}"
@@ -15,7 +16,7 @@ function usage() {
 function fail_if_tag_exists() {
   local mods="$1"
   for m in $mods; do
-    mod_tags=$(svn ls https://svn.mermit.fi/projects/kohtikumppanuutta/$m/tags)
+    mod_tags=$(svn ls $svn_repo_base/kohtikumppanuutta/$m/tags)
     rv=$?
     [ $rv -ne 0 ] && echo "failed to get tags for $m, exiting" && exit 1
     echo "$mod_tags" | grep -q "^$koku_rel_v/$"
@@ -27,8 +28,8 @@ function fail_if_tag_exists() {
 function tag_release() {
   local mods="$1"
   for m in $mods; do
-    svn copy https://svn.mermit.fi/projects/kohtikumppanuutta/$m/trunk \
-           https://svn.mermit.fi/projects/kohtikumppanuutta/$m/tags/$koku_rel_v \
+    svn copy $svn_repo_base/kohtikumppanuutta/$m/trunk \
+           $svn_repo_base/kohtikumppanuutta/$m/tags/$koku_rel_v \
         -m "KoKu / $m: $koku_rel_v tag."
   done
 }
@@ -43,7 +44,7 @@ function build_packages() {
   # do a full, fresh checkout
   for m in $modules; do
     cd $m
-    svn co https://svn.mermit.fi/projects/kohtikumppanuutta/$m/tags/$koku_rel_v
+    svn co $svn_repo_base/kohtikumppanuutta/$m/tags/$koku_rel_v
     cd ..
   done
 
@@ -74,11 +75,13 @@ function build_packages() {
   popd
 }
 
-while getopts "r:c:" o; do
+while getopts "r:c:e" o; do
   case $o in
     r) koku_rel_v=$OPTARG
 	  ;;
     c) build_command=$OPTARG
+	  ;;
+    e) is_ext_user=1
 	  ;;
     *) echo "?"
 	  exit 1
@@ -90,6 +93,11 @@ if [ "x" = "x$koku_rel_v" -o "x" = "x$build_command" ]; then
   usage
 fi
 
+if [ "x" = "x$is_ext_user" ]; then
+  svn_repo_base=$svn_repo_base/projects
+else
+  svn_repo_base=$svn_repo_base/ext
+fi
 
 case $build_command in
   tag_release)
