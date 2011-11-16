@@ -34,9 +34,10 @@ public class DataImporter {
 
       if ("customer".equalsIgnoreCase(args[0])) {
         WSCaller caller = new WSCaller();
-        caller.communityService();
+        //caller.communityService();
         //caller.customerService();
         //caller.kahvaService();
+        caller.kahvaServiceNew();
       }
       else if ("employee".equalsIgnoreCase(args[0])) {
         new EmployeeWriter().writeEmployeeLDIF(reader);
