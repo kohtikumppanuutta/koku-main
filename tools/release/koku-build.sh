@@ -66,8 +66,7 @@ function build_packages() {
 
   # build/ui: loora packages
   sed -i'' -e 's/\/portlet" prefix=/\/portlet_2_0" prefix=/' {kks,lok}/src/main/webapp/WEB-INF/jsp/*/imports.jsp
-  sed -i'' '/EPP only: start/,/EPP only: end/d' */src/main/webapp/WEB-INF/web.xml
-  sed -i'' '/EPP only: start/,/EPP only: end/d' arcusys-portlet/*/src/main/webapp/WEB-INF/web.xml
+  sed -i'' '/EPP only: start/,/EPP only: end/d' */src/main/webapp/WEB-INF/web.xml arcusys-portlet/*/src/main/webapp/WEB-INF/web.xml
   mvn -Dkoku.build.version=$koku_rel_v clean install
   cp kks/target/kks-portlet-*.war lok/target/lok-portlet-*.war ../../loora
   cp arcusys-portlet/koku-palvelut-portlet/target/palvelut-portlet.war arcusys-portlet/koku-message-portlet/target/koku-message-portlet.war \
