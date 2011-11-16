@@ -1,0 +1,132 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>kohti-kumppanuutta</groupId>
+  <artifactId>koku-dataimport</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>koku-dataimport</name>
+  <description>Dataimport tool</description>
+
+  <properties>
+    <slf4j.version>1.6.1</slf4j.version>
+    <!-- <portlet-api.version>2.0</portlet-api.version> -->
+    <!-- <spring.version>3.0.5.RELEASE</spring.version> -->
+    <!-- <servlet.version>2.5</servlet.version> -->
+    <!-- <servlet.jsp.version>2.1</servlet.jsp.version> -->
+    <!-- <jstl.version>1.2</jstl.version> -->
+    <!-- <jrebel.plugin.version>1.0.8</jrebel.plugin.version> -->
+    <!-- <maven.compiler.plugin.version>2.3.2</maven.compiler.plugin.version> -->
+    <!-- <commons.lang.version>2.6</commons.lang.version> -->
+    <!-- <koku-common-lib.version>0.2.0</koku-common-lib.version> -->
+    <!-- <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding> -->
+  </properties>
+
+
+  <!-- <build> -->
+  <!-- <plugins> -->
+
+  <!-- <plugin> -->
+  <!-- <inherited>true</inherited> -->
+  <!-- <groupId>org.apache.maven.plugins</groupId> -->
+  <!-- <artifactId>maven-compiler-plugin</artifactId> -->
+  <!-- <version>${maven.compiler.plugin.version}</version> -->
+  <!-- <configuration> -->
+  <!-- <source>1.6</source> -->
+  <!-- <target>1.6</target> -->
+  <!-- <optimise>true</optimise> -->
+  <!-- <encoding>UTF-8</encoding> -->
+  <!-- <debug>true</debug> -->
+  <!-- </configuration> -->
+  <!-- </plugin> -->
+  <!-- </plugins> -->
+  <!-- </build> -->
+
+  <dependencies>
+    <dependency>
+      <groupId>opencsv</groupId>
+      <artifactId>opencsv</artifactId>
+      <version>2.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>kohti-kumppanuutta</groupId>
+      <artifactId>customerservice-api</artifactId>
+      <version>0.0.19</version>
+    </dependency>
+
+    <dependency>
+      <groupId>kohti-kumppanuutta</groupId>
+      <artifactId>customerservice-api</artifactId>
+      <version>0.0.19</version>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <!-- <dependency> -->
+    <!-- <groupId>kohti-kumppanuutta</groupId> -->
+    <!-- <artifactId>koku-common-lib</artifactId> -->
+    <!-- <version>0.2.0</version> -->
+    <!-- </dependency> -->
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>kohti-kumppanuutta</groupId>
+      <artifactId>kahvaservice-api</artifactId>
+      <version>0.0.3</version>
+    </dependency>
+
+  </dependencies>
+
+  <repositories>
+
+    <!-- <repository> -->
+    <!-- <id>jboss-public-repository-group</id> -->
+    <!-- <name>JBoss Public Repository Group</name> -->
+    <!-- <url>http://repository.jboss.org/nexus/content/groups/public/</url> -->
+    <!-- <layout>default</layout> -->
+    <!-- <releases> -->
+    <!-- <enabled>true</enabled> -->
+    <!-- <updatePolicy>never</updatePolicy> -->
+    <!-- </releases> -->
+    <!-- <snapshots> -->
+    <!-- <enabled>true</enabled> -->
+    <!-- <updatePolicy>never</updatePolicy> -->
+    <!-- </snapshots> -->
+    <!-- </repository> -->
+
+    <!-- <repository> -->
+    <!-- <id>org.jboss.repository.releases</id> -->
+    <!-- <name>JBoss Maven Release Repository</name> -->
+    <!-- <url>https://repository.jboss.org/nexus/content/repositories/releases</url> -->
+    <!-- <snapshots> -->
+    <!-- <enabled>false</enabled> -->
+    <!-- </snapshots> -->
+    <!-- </repository> -->
+
+
+    <repository>
+      <id>ElasticService.com</id>
+      <name>ElasticService.com-releases</name>
+      <url>https://m2.elasticservice.com/artifactory/koku</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>ElasticService.com</id>
+      <name>ElasticService.com-releases</name>
+      <url>https://m2.elasticservice.com/artifactory/koku</url>
+    </repository>
+  </distributionManagement>
+
+</project>
