@@ -67,4 +67,16 @@ public class WSCaller {
     User user = port.getUserById("nelli.neuvola");    
     System.out.println(user);
   }
+  
+  
+  public void kahvaServiceNew() throws Exception{      
+    
+    LdapServiceFactory f = new LdapServiceFactory(KAHVA_ENDPOINT);
+    LdapService ldapService = f.getOrganizationService();
+    
+    User user = ldapService.getUserById("nelli.neuvola");    
+    System.out.println(user);
+  }
+  
+  
 }
