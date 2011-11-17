@@ -1,5 +1,17 @@
 package fi.koku.tools.dataimport;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
+
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
+
 import fi.arcusys.tampere.hrsoa.entity.User;
 import fi.arcusys.tampere.hrsoa.ws.ldap.LdapService;
 import fi.koku.services.common.kahva.LdapServiceFactory;
@@ -7,13 +19,19 @@ import fi.koku.services.entity.community.v1.CommunityServiceFactory;
 import fi.koku.services.entity.community.v1.CommunityServicePortType;
 import fi.koku.services.entity.community.v1.CommunityType;
 import fi.koku.services.entity.community.v1.MemberType;
+import fi.koku.services.entity.customer.v1.AddressType;
+import fi.koku.services.entity.customer.v1.AddressesType;
 import fi.koku.services.entity.customer.v1.AuditInfoType;
 import fi.koku.services.entity.customer.v1.CustomerServiceFactory;
 import fi.koku.services.entity.customer.v1.CustomerServicePortType;
 import fi.koku.services.entity.customer.v1.CustomerType;
+import fi.koku.services.entity.customer.v1.PhoneNumberType;
 
 public class WSCaller {
 
+  private static final String GSM = "gsm";
+  private static final String VIRALLINEN = "virallinen";
+  private static final String ELOSSA = "elossa";
   private static final String GUARDIAN_COMMUNITY = "guardian_community";
   private static final String CUSTOMER_SERVICE_USER_ID = "marko";
   private static final String CUSTOMER_SERVICE_PASSWORD = "marko";
@@ -28,16 +46,85 @@ public class WSCaller {
     return getLdapService().getUserById(userID);
   }
 
-  public void addCustomer() throws Exception{   
+  public void addCustomer(String pic, String lastName, String firstnames, String kansalaisuuskoodi,
+      String kuntakoodi, String kielikoodi, String katunimi, String postiToimipaikka, String postinumero,
+      String puhelinnumero) throws Exception{   
     AuditInfoType auditinfo = new AuditInfoType();
     auditinfo.setComponent("koku-dataimport");  
     // TODO tarkasta user id
     auditinfo.setUserId("444444-4444");
-          
+     
+    
+    /*
+
+    "status",
+    "statusDate",
+    "henkiloTunnus",
+    "syntymaPvm",
+    "sukuNimi",
+    "etuNimi",
+    "etunimetNimi",
+    "kansalaisuusKoodi",
+    "kuntaKoodi",
+    "kieliKoodi",
+    "turvakieltoKytkin",
+    "addresses",
+    "phoneNumbers",
+    "electronicContactInfos"
+     
+     */
+    
     CustomerType customer = new CustomerType();
-    //customer.set
-    //customer.set
-    //customer.set
+    customer.setStatus(ELOSSA);
+    
+    XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar();    
+    // TODO set this
+    //customer.setStatusDate();
+    
+    customer.setHenkiloTunnus(pic);
+    // TODO set this
+    //customer.setSyntymaPvm(value)
+    
+    customer.setSukuNimi(lastName);
+    customer.setEtuNimi(getFirstName(firstnames));
+    customer.setEtunimetNimi(firstnames);
+    customer.setKansalaisuusKoodi(kansalaisuuskoodi);
+    customer.setKuntaKoodi(kuntakoodi);
+    customer.setKieliKoodi(kielikoodi);
+    customer.setTurvakieltoKytkin(false);
+
+    AddressType type = new AddressType();
+    type.setAddressType(VIRALLINEN);
+    type.setKatuNimi(katunimi);
+    type.setPostitoimipaikkaNimi(postiToimipaikka);
+    type.setPostinumeroKoodi(postinumero);
+    // TODO set these
+    type.setPostilokeroTeksti("");
+    type.setMaatunnusKoodi("");    
+    customer.getAddresses().getAddress().add(type);
+    
+    /*
+     
+          "numberClass",
+    "numberType",
+    "puhelinnumeroTeksti"
+     
+     */
+    
+    PhoneNumberType phoneNumberType = new PhoneNumberType();
+    phoneNumberType.setNumberClass(GSM);
+    phoneNumberType.setNumberType("kotipuhelin");
+    phoneNumberType.setPuhelinnumeroTeksti(puhelinnumero);
+  
+    // TODO add second phone.
+    customer.getPhoneNumbers().getPhone().add(phoneNumberType);
+    
+    
+    //ElectronicContactInfoType eContact = new ElectronicContactInfoType();
+    
+    //customer.getElectronicContactInfos().getEContactInfo().add(e);
+  
+    
     getCustomerService().opAddCustomer(customer, auditinfo);
   }
   
@@ -53,6 +140,22 @@ public class WSCaller {
     member.setPic(pic);
     community.getMembers().getMember().add(member);
     getCommunityService().opUpdateCommunity(community, auditinfo);
+  }
+  
+  private String getFirstName(String names) throws Exception {
+
+    if (names == null) {
+      throw new Exception("Names cannot be null");
+    }
+
+    // remove leading and trailing whitespace
+    names = names.trim();
+
+    if (names.contains(" ")) {
+      return names.substring(0, names.indexOf(" "));
+    }
+
+    return names;
   }
   
   private LdapService getLdapService() throws Exception {
