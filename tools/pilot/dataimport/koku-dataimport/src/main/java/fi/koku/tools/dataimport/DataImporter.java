@@ -4,13 +4,9 @@ import java.io.File;
 import java.io.FileReader;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 import au.com.bytecode.opencsv.CSVReader;
-
-import fi.koku.services.entity.customer.v1.AuditInfoType;
-import fi.koku.services.entity.customer.v1.CustomerServiceFactory;
-import fi.koku.services.entity.customer.v1.CustomerServicePortType;
-import fi.koku.services.entity.customer.v1.CustomerType;
 
 public class DataImporter {
 
@@ -19,31 +15,45 @@ public class DataImporter {
   }
 
   public DataImporter(String[] args) throws Exception {
-    if (args.length == 0 || args.length > 1) {
-      System.err.println("Please provide the file type. Available types are 'customer' and 'employee' ");
+
+    Object[] options = new Object[] { "Employee", "Customer" };
+    int returnvalue = JOptionPane.showOptionDialog(null, "Select file type.", null, JOptionPane.YES_NO_OPTION,
+        JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+    if (returnvalue != 0 && returnvalue != 1) {
+      JOptionPane.showMessageDialog(null, "No file type selected, exiting.");
       return;
     }
 
-    JFileChooser chooser = new JFileChooser();
+    JFileChooser chooser = new JFileChooser(new File("c:/users/hanhian/desktop"));
     chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
     int result = chooser.showOpenDialog(null);
 
     if (result == JFileChooser.APPROVE_OPTION) {
+      WSCaller caller = new WSCaller();
       File file = chooser.getSelectedFile();
-      CSVReader reader = new CSVReader(new FileReader(file));
 
-      if ("customer".equalsIgnoreCase(args[0])) {
-        WSCaller caller = new WSCaller();
-        //caller.communityService();
-        //caller.customerService();
-        //caller.kahvaService();
-        caller.kahvaServiceNew();
-      }
-      else if ("employee".equalsIgnoreCase(args[0])) {
-        new EmployeeWriter().writeEmployeeLDIF(reader);
-      }
-      else {
-        System.err.println("Please provide the file type. Available types are 'customer' and 'employee' ");
+      if (returnvalue == 0) {
+        CSVReader reader = new CSVReader(new FileReader(file));
+        try {
+          new LDIFWriter().writeEmployeeLDIF(reader, caller, file.getParentFile());
+        } finally {
+          reader.close();
+        }
+      } else if (returnvalue == 1) {
+        CSVReader reader = new CSVReader(new FileReader(file));
+        try {
+          new CustomerCreator().createCustomers(reader, caller);
+        } finally {
+          reader.close();
+        }
+
+        reader = new CSVReader(new FileReader(file));
+        try {
+          new LDIFWriter().writeCustomerLDIF(reader, file.getParentFile());
+        } finally {
+          reader.close();
+        }
       }
     }
   }
