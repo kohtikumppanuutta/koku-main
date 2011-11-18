@@ -85,6 +85,12 @@
       <version>0.0.4-SNAPSHOT</version>
     </dependency>
 
+    <dependency>
+      <groupId>kohti-kumppanuutta</groupId>
+      <artifactId>koku-common-lib</artifactId>
+      <version>0.2.0</version>
+    </dependency>
+    
   </dependencies>
 
   <repositories>

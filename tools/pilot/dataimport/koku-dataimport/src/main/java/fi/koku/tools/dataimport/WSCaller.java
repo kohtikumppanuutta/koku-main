@@ -1,163 +1,204 @@
 package fi.koku.tools.dataimport;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
 
 import fi.arcusys.tampere.hrsoa.entity.User;
 import fi.arcusys.tampere.hrsoa.ws.ldap.LdapService;
+import fi.koku.calendar.CalendarUtil;
 import fi.koku.services.common.kahva.LdapServiceFactory;
 import fi.koku.services.entity.community.v1.CommunityServiceFactory;
 import fi.koku.services.entity.community.v1.CommunityServicePortType;
 import fi.koku.services.entity.community.v1.CommunityType;
 import fi.koku.services.entity.community.v1.MemberType;
+import fi.koku.services.entity.community.v1.MembersType;
 import fi.koku.services.entity.customer.v1.AddressType;
 import fi.koku.services.entity.customer.v1.AddressesType;
 import fi.koku.services.entity.customer.v1.AuditInfoType;
 import fi.koku.services.entity.customer.v1.CustomerServiceFactory;
 import fi.koku.services.entity.customer.v1.CustomerServicePortType;
 import fi.koku.services.entity.customer.v1.CustomerType;
+import fi.koku.services.entity.customer.v1.ElectronicContactInfoType;
+import fi.koku.services.entity.customer.v1.ElectronicContactInfosType;
 import fi.koku.services.entity.customer.v1.PhoneNumberType;
+import fi.koku.services.entity.customer.v1.PhoneNumbersType;
 
 public class WSCaller {
 
+  private static final String DEPENDANT = "dependant";
+  private static final String GUARDIAN = "guardian";
+  private static final String EMAIL = "email";
+  private static final String KOTIPUHELIN = "kotipuhelin";
   private static final String GSM = "gsm";
   private static final String VIRALLINEN = "virallinen";
   private static final String ELOSSA = "elossa";
   private static final String GUARDIAN_COMMUNITY = "guardian_community";
   private static final String CUSTOMER_SERVICE_USER_ID = "marko";
   private static final String CUSTOMER_SERVICE_PASSWORD = "marko";
-  private static final String CUSTOMER_ENDPOINT = "http://localhost:8180/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";  
+  private static final String CUSTOMER_ENDPOINT = "http://localhost:8180/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
   private static final String KAHVA_ENDPOINT = "http://localhost:8180/kahvaservice-mock-ear-0.0.1-SNAPSHOT-kahvaservice-mock-0.0.3-SNAPSHOT/KahvaServiceEndpointBean";
-  
+
   private LdapService ldapService;
   private CustomerServicePortType customerService;
   private CommunityServicePortType communityService;
-  
+
   public User getUserById(String userID) throws Exception {
     return getLdapService().getUserById(userID);
   }
 
-  public void addCustomer(String pic, String lastName, String firstnames, String kansalaisuuskoodi,
-      String kuntakoodi, String kielikoodi, String katunimi, String postiToimipaikka, String postinumero,
-      String puhelinnumero) throws Exception{   
-    AuditInfoType auditinfo = new AuditInfoType();
-    auditinfo.setComponent("koku-dataimport");  
-    // TODO tarkasta user id
-    auditinfo.setUserId("444444-4444");
-     
-    
-    /*
+  public CustomerType getCustomerByPic(String pic) {
+    try {
+      return getCustomerService().opGetCustomer(pic, getCustomerAuditHeader());
+    } catch (Exception e) {
+      return null;
+    }
+  }
 
-    "status",
-    "statusDate",
-    "henkiloTunnus",
-    "syntymaPvm",
-    "sukuNimi",
-    "etuNimi",
-    "etunimetNimi",
-    "kansalaisuusKoodi",
-    "kuntaKoodi",
-    "kieliKoodi",
-    "turvakieltoKytkin",
-    "addresses",
-    "phoneNumbers",
-    "electronicContactInfos"
-     
-     */
-    
+  public String addCustomer(String pic, String syntymaaika, String lastName, String firstname, String firstnames,
+      String kansalaisuuskoodi, String kuntakoodi, String kielikoodi, String katunimi, String postiToimipaikka,
+      String postinumero, String puhelinnumero, String puhelinnumero2, String email, String email2) throws Exception {
+
     CustomerType customer = new CustomerType();
+    // TODO set real data
     customer.setStatus(ELOSSA);
-    
-    XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar();    
-    // TODO set this
-    //customer.setStatusDate();
-    
+    customer.setStatusDate(CalendarUtil.getXmlDate(new Date()));
     customer.setHenkiloTunnus(pic);
-    // TODO set this
-    //customer.setSyntymaPvm(value)
-    
+    customer.setSyntymaPvm(parseBirthDate(syntymaaika, pic));
     customer.setSukuNimi(lastName);
-    customer.setEtuNimi(getFirstName(firstnames));
-    customer.setEtunimetNimi(firstnames);
-    customer.setKansalaisuusKoodi(kansalaisuuskoodi);
+    customer.setEtuNimi(firstname);
+    customer.setEtunimetNimi(firstnames.trim());
+    // TODO set real data
+    customer.setKansalaisuusKoodi("FI");
+    // TODO these are not codes, just text, FIX?
+    if (kuntakoodi.length() > 10) {
+      kuntakoodi = kuntakoodi.substring(0, 10);
+    }
     customer.setKuntaKoodi(kuntakoodi);
+    // TODO these are not codes, just text, FIX?
+    if (kielikoodi.length() > 10) {
+      kielikoodi = kielikoodi.substring(0, 10);
+    }
     customer.setKieliKoodi(kielikoodi);
+    // TODO set real data
     customer.setTurvakieltoKytkin(false);
 
-    AddressType type = new AddressType();
-    type.setAddressType(VIRALLINEN);
-    type.setKatuNimi(katunimi);
-    type.setPostitoimipaikkaNimi(postiToimipaikka);
-    type.setPostinumeroKoodi(postinumero);
-    // TODO set these
-    type.setPostilokeroTeksti("");
-    type.setMaatunnusKoodi("");    
-    customer.getAddresses().getAddress().add(type);
-    
-    /*
-     
-          "numberClass",
-    "numberType",
-    "puhelinnumeroTeksti"
-     
-     */
-    
-    PhoneNumberType phoneNumberType = new PhoneNumberType();
-    phoneNumberType.setNumberClass(GSM);
-    phoneNumberType.setNumberType("kotipuhelin");
-    phoneNumberType.setPuhelinnumeroTeksti(puhelinnumero);
-  
-    // TODO add second phone.
-    customer.getPhoneNumbers().getPhone().add(phoneNumberType);
-    
-    
-    //ElectronicContactInfoType eContact = new ElectronicContactInfoType();
-    
-    //customer.getElectronicContactInfos().getEContactInfo().add(e);
-  
-    
-    getCustomerService().opAddCustomer(customer, auditinfo);
-  }
-  
-  public void addToGuardianCommunity(String role, String pic) throws Exception {
-    fi.koku.services.entity.community.v1.AuditInfoType auditinfo = new fi.koku.services.entity.community.v1.AuditInfoType();
-    auditinfo.setComponent("koku-dataimport");
-    // TODO tarkasta user id
-    auditinfo.setUserId("444444-4444");
+    AddressType address = new AddressType();
+    // TODO set real data
+    address.setAddressType(VIRALLINEN);
+    address.setKatuNimi(katunimi);
+    address.setPostitoimipaikkaNimi(postiToimipaikka);
+    address.setPostinumeroKoodi(postinumero);
+    // TODO set real data
+    address.setPostilokeroTeksti("");
+    address.setMaatunnusKoodi("");
 
-    CommunityType community = getCommunityService().opGetCommunity(GUARDIAN_COMMUNITY, auditinfo);
+    AddressesType adresses = new AddressesType();
+    adresses.getAddress().add(address);
+    customer.setAddresses(adresses);
+
+    PhoneNumbersType numbersType = new PhoneNumbersType();
+    addPhoneNumber(puhelinnumero, numbersType);
+    addPhoneNumber(puhelinnumero2, numbersType);
+    customer.setPhoneNumbers(numbersType);
+
+    ElectronicContactInfosType eContactInfos = new ElectronicContactInfosType();
+    addEmail(email, eContactInfos);
+    addEmail(email2, eContactInfos);
+    customer.setElectronicContactInfos(eContactInfos);
+
+    return getCustomerService().opAddCustomer(customer, getCustomerAuditHeader());
+    // getCustomerService().opGetCustomer("444444-4444",
+    // createCustomerAuditInfo());
+  }
+
+  public String createCommunity(String communityName, String guardianPic) throws Exception {
+    CommunityType community = new CommunityType();
+    community.setType(GUARDIAN_COMMUNITY);
+    community.setName(communityName);
+
+    MembersType members = new MembersType();
+    MemberType guardian = new MemberType();
+    guardian.setRole(GUARDIAN);
+    guardian.setPic(guardianPic);
+
+    members.getMember().add(guardian);
+    community.setMembers(members);
+
+    return getCommunityService().opAddCommunity(community, getCommunityAuditHeader());
+  }
+
+  public void updateCommunity(String communityID, String dependantPic) throws Exception {
+    CommunityType community = getCommunityService().opGetCommunity(communityID, getCommunityAuditHeader());
+
+    MembersType members = community.getMembers();
     MemberType member = new MemberType();
-    member.setRole(role);
-    member.setPic(pic);
-    community.getMembers().getMember().add(member);
-    getCommunityService().opUpdateCommunity(community, auditinfo);
-  }
-  
-  private String getFirstName(String names) throws Exception {
+    member.setRole(DEPENDANT);
+    member.setPic(dependantPic);
+    members.getMember().add(member);
 
-    if (names == null) {
-      throw new Exception("Names cannot be null");
+    getCommunityService().opUpdateCommunity(community, getCommunityAuditHeader());
+  }
+
+  private fi.koku.services.entity.community.v1.AuditInfoType getCommunityAuditHeader() {
+    fi.koku.services.entity.community.v1.AuditInfoType auditInfo = new fi.koku.services.entity.community.v1.AuditInfoType();
+    auditInfo.setComponent("koku-dataimport");
+    // TODO real user id?
+    auditInfo.setUserId("444444-4444");
+    return auditInfo;
+  }
+
+  private AuditInfoType getCustomerAuditHeader() {
+    AuditInfoType auditinfo = new AuditInfoType();
+    auditinfo.setComponent("koku-dataimport");
+    // TODO real user id?
+    auditinfo.setUserId("444444-4444");
+    return auditinfo;
+  }
+
+  private void addPhoneNumber(String puhelinnumero, PhoneNumbersType numbersType) {
+    if (puhelinnumero != null && puhelinnumero.length() > 0) {
+      PhoneNumberType phoneNumberType = new PhoneNumberType();
+      // TODO set real data
+      phoneNumberType.setNumberClass(GSM);
+      // TODO set real data
+      phoneNumberType.setNumberType(KOTIPUHELIN);
+      phoneNumberType.setPuhelinnumeroTeksti(puhelinnumero);
+      numbersType.getPhone().add(phoneNumberType);
+    }
+  }
+
+  private void addEmail(String email, ElectronicContactInfosType eContactInfos) {
+    if (email != null && email.length() > 0) {
+      ElectronicContactInfoType eContact = new ElectronicContactInfoType();
+      eContact.setContactInfoType(EMAIL);
+      eContact.setContactInfo(email);
+      eContactInfos.getEContactInfo().add(eContact);
+    }
+  }
+
+  private XMLGregorianCalendar parseBirthDate(String syntymaaika, String pic) throws Exception {
+    if (syntymaaika == null || syntymaaika.length() != 6) {
+      throw new Exception("Syntymäaika was not valid: " + syntymaaika);
     }
 
-    // remove leading and trailing whitespace
-    names = names.trim();
+    XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar();
+    cal.setDay(Integer.parseInt(syntymaaika.substring(0, 2)));
+    cal.setMonth(Integer.parseInt(syntymaaika.substring(2, 4)));
+    int year = Integer.parseInt(syntymaaika.substring(4, 6));
 
-    if (names.contains(" ")) {
-      return names.substring(0, names.indexOf(" "));
+    if (pic != null) {
+      if (pic.contains("A") || pic.contains("a")) {
+        year = year + 2000;
+      } else {
+        year = year + 1900;
+      }
     }
-
-    return names;
+    cal.setYear(year);
+    return cal;
   }
-  
+
   private LdapService getLdapService() throws Exception {
     if (ldapService == null) {
       LdapServiceFactory f = new LdapServiceFactory(KAHVA_ENDPOINT);
@@ -165,16 +206,16 @@ public class WSCaller {
     }
     return ldapService;
   }
-  
+
   private CustomerServicePortType getCustomerService() throws Exception {
-    if (customerService != null) {
+    if (customerService == null) {
       CustomerServiceFactory customerServiceFactory = new CustomerServiceFactory(CUSTOMER_SERVICE_USER_ID,
           CUSTOMER_SERVICE_PASSWORD, CUSTOMER_ENDPOINT);
       customerService = customerServiceFactory.getCustomerService();
     }
     return customerService;
   }
-  
+
   private CommunityServicePortType getCommunityService() throws Exception {
     if (communityService == null) {
       CommunityServiceFactory communityServiceFactory = new CommunityServiceFactory(CUSTOMER_SERVICE_USER_ID,
@@ -183,96 +224,4 @@ public class WSCaller {
     }
     return communityService;
   }
-  
-  
-  /*   
-  Customer(kuntalainen) kentät lapselle
-  "status",                 -
-  "statusDate",             -
-  "henkiloTunnus",          Lapsen henkilötunnus
-  "syntymaPvm",             Lapsen syntymäaika
-  "sukuNimi",               Lpasen nimi (parsitaanko pilkulla erotettuna?)
-  "etuNimi",                Lpasen nimi (parsitaanko pilkulla erotettuna?)
-  "etunimetNimi",           -
-  "kansalaisuusKoodi",      -
-  "kuntaKoodi",             Kotikunta (ei ole koodi vaan teksti esim. "Tampere")
-  "kieliKoodi",             -
-  "turvakieltoKytkin",      -
-  "addresses",              Lapsen osoite + Lapsen postinumero + Lapsen postitoimipaikka
-  "phoneNumbers",           -
-  "electronicContactInfos"  -
-  
-  Customer(kuntalainen) kentät päämiehelle
-  "status",                 -
-  "statusDate",             -
-  "henkiloTunnus",          -
-  "syntymaPvm",             -
-  "sukuNimi",               Päämiehen nimi (parsitaanko pilkulla erotettuna?)
-  "etuNimi",                Päämiehen nimi (parsitaanko pilkulla erotettuna?)
-  "etunimetNimi",           -
-  "kansalaisuusKoodi",      -
-  "kuntaKoodi",             -
-  "kieliKoodi",             -
-  "turvakieltoKytkin",      -
-  "addresses",              Päämiehen osoite + Päämiehen postinumero + Päämiehen postitoimipaikka
-  "phoneNumbers",           Päämiehen Puhelin
-  "electronicContactInfos"  Päämiehen Sähköposti
-  
-  Customer(kuntalainen) kentät puolisolle
-  "status",                 -
-  "statusDate",             -
-  "henkiloTunnus",          -
-  "syntymaPvm",             -
-  "sukuNimi",               Puolison nimi (parsitaanko pilkulla erotettuna?)
-  "etuNimi",                Puolison nimi (parsitaanko pilkulla erotettuna?)
-  "etunimetNimi",           -
-  "kansalaisuusKoodi",      -
-  "kuntaKoodi",             -
-  "kieliKoodi",             -
-  "turvakieltoKytkin",      -
-  "addresses",              -
-  "phoneNumbers",           Puolison matkapuhelin
-  "electronicContactInfos"  Puolison sähköposti
-
-
-  LDIF Lapselle
-    # kalle.kuntalainen, People, koku, example.org
-    dn: cn=${portal.user.name},ou=People,o=koku,dc=example,dc=org 
-    cn: ${portal.user.name}         -
-    givenName: ${user.firstname}    Lpasen nimi (parsitaanko pilkulla erotettuna?)
-    objectClass: inetOrgPerson
-    objectClass: top
-    sn: ${user.lasname}             Lpasen nimi (parsitaanko pilkulla erotettuna?)
-    userPassword: test
-    mail: ${user.email}             -
-    uid: ${user.pic}                Lapsen henkilötunnus
-
- LDIF päämiehelle
-    # kalle.kuntalainen, People, koku, example.org
-    dn: cn=${portal.user.name},ou=People,o=koku,dc=example,dc=org 
-    cn: ${portal.user.name}         -
-    givenName: ${user.firstname}    Päämiehen nimi (parsitaanko pilkulla erotettuna?)
-    objectClass: inetOrgPerson
-    objectClass: top
-    sn: ${user.lasname}             Päämiehen nimi (parsitaanko pilkulla erotettuna?)
-    userPassword: test
-    mail: ${user.email}             Päämiehen Sähköposti
-    uid: ${user.pic}                -
-    
- LDIF puolisolle
-    # kalle.kuntalainen, People, koku, example.org
-    dn: cn=${portal.user.name},ou=People,o=koku,dc=example,dc=org 
-    cn: ${portal.user.name}         -
-    givenName: ${user.firstname}    Puolison nimi (parsitaanko pilkulla erotettuna?)
-    objectClass: inetOrgPerson
-    objectClass: top
-    sn: ${user.lasname}             Puolison nimi (parsitaanko pilkulla erotettuna?)
-    userPassword: test
-    mail: ${user.email}             Puolison sähköposti
-    uid: ${user.pic}                -
-    
-
-   */
-  
-  
 }
