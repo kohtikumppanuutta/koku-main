@@ -11,16 +11,22 @@ import au.com.bytecode.opencsv.CSVReader;
 public class DataImporter {
 
   public static void main(String[] args) throws Exception {
-    new DataImporter(args);
+    try {
+      new DataImporter(args);
+    } catch (Exception e) {      
+      e.printStackTrace();
+      JOptionPane.showMessageDialog(null, "There was an error executing the dataimport. " +
+      		"Please check the console.\nException: " + e.getMessage());     
+    }
   }
 
   public DataImporter(String[] args) throws Exception {
 
-    Object[] options = new Object[] {"Employee", "Customer"};
-    int returnvalue = JOptionPane.showOptionDialog(null, "Select file type.", null, JOptionPane.YES_NO_OPTION,
+    Object[] options = new Object[] { "Employee", "Effica customer", "Helmi customer" };
+    int returnvalue = JOptionPane.showOptionDialog(null, "Select file type.", null, JOptionPane.DEFAULT_OPTION,
         JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
-    if (returnvalue != 0 && returnvalue != 1) {
+    if (returnvalue != 0 && returnvalue != 1 && returnvalue != 2) {
       JOptionPane.showMessageDialog(null, "No file type selected, exiting.");
       return;
     }
@@ -35,17 +41,21 @@ public class DataImporter {
 
       // User selected Employee
       if (returnvalue == 0) {
+
+        System.out.println("employee");
         CSVReader reader = new CSVReader(new FileReader(file));
         try {
           new LDIFWriter().writeEmployeeLDIF(reader, caller, file.getParentFile());
         } finally {
           reader.close();
         }
-      // User selected Customer
+      // Effica Customer
       } else if (returnvalue == 1) {
+
+        System.out.println("effica");
         CSVReader reader = new CSVReader(new FileReader(file));
         try {
-          new LDIFWriter().writeCustomerLDIF(reader, file.getParentFile());
+          new LDIFWriter().writeEfficaCustomerLDIF(reader, file.getParentFile());
         } finally {
           reader.close();
         }
@@ -55,7 +65,31 @@ public class DataImporter {
           new CustomerCreator().createCustomers(reader, caller, file.getParentFile());
         } finally {
           reader.close();
-        }               
+        }
+      // Helmi Customer
+      } else if (returnvalue == 2) {
+        System.out.println("helmi");
+        CSVReader reader = new CSVReader(new FileReader(file));
+        try {
+          new LDIFWriter().writeHelmiCustomerLDIF(reader, file.getParentFile());
+        } finally {
+          reader.close();
+        }
+
+        //TODO
+        // customer creator helmidatalle
+        // lapsien ryhmien luonti LDIF:iin ja KOKUUN?
+        // 
+        // TESTAUS
+        
+        
+        
+//        reader = new CSVReader(new FileReader(file));
+//        try {
+//          new CustomerCreator().createCustomers(reader, caller, file.getParentFile());
+//        } finally {
+//          reader.close();
+//        }
       }
     }
   }
