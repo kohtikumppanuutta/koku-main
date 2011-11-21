@@ -58,7 +58,7 @@ public class WSCaller {
 
   public String addCustomer(String pic, String syntymaaika, String lastName, String firstname, String firstnames,
       String kansalaisuuskoodi, String kuntakoodi, String kielikoodi, String katunimi, String postiToimipaikka,
-      String postinumero, String puhelinnumero, String puhelinnumero2, String email, String email2) throws Exception {
+      String postinumero, String puhelinnumero, String matkapuhelin, String email, String email2) throws Exception {
 
     CustomerType customer = new CustomerType();
     // TODO set real data
@@ -99,18 +99,23 @@ public class WSCaller {
     customer.setAddresses(adresses);
 
     PhoneNumbersType numbersType = new PhoneNumbersType();
-    addPhoneNumber(puhelinnumero, numbersType);
-    addPhoneNumber(puhelinnumero2, numbersType);
+    if (matkapuhelin != null && matkapuhelin.length() > 0) {
+      addPhoneNumber(matkapuhelin, numbersType);
+    } else if (puhelinnumero != null && puhelinnumero.length() > 0) {
+      addPhoneNumber(puhelinnumero, numbersType);
+    }
     customer.setPhoneNumbers(numbersType);
 
     ElectronicContactInfosType eContactInfos = new ElectronicContactInfosType();
-    addEmail(email, eContactInfos);
-    addEmail(email2, eContactInfos);
+    if (email != null && email.length() > 0) {
+      addEmail(email, eContactInfos);
+    } else if (email2 != null && email2.length() > 0) {
+      addEmail(email2, eContactInfos);
+    }           
     customer.setElectronicContactInfos(eContactInfos);
 
     return getCustomerService().opAddCustomer(customer, getCustomerAuditHeader());
     // getCustomerService().opGetCustomer("444444-4444",
-    // createCustomerAuditInfo());
   }
 
   public String createCommunity(String communityName, String guardianPic) throws Exception {
@@ -158,24 +163,20 @@ public class WSCaller {
   }
 
   private void addPhoneNumber(String puhelinnumero, PhoneNumbersType numbersType) {
-    if (puhelinnumero != null && puhelinnumero.length() > 0) {
-      PhoneNumberType phoneNumberType = new PhoneNumberType();
-      // TODO set real data
-      phoneNumberType.setNumberClass(GSM);
-      // TODO set real data
-      phoneNumberType.setNumberType(KOTIPUHELIN);
-      phoneNumberType.setPuhelinnumeroTeksti(puhelinnumero);
-      numbersType.getPhone().add(phoneNumberType);
-    }
+    PhoneNumberType phoneNumberType = new PhoneNumberType();
+    // TODO set real data
+    phoneNumberType.setNumberClass(GSM);
+    // TODO set real data
+    phoneNumberType.setNumberType(KOTIPUHELIN);
+    phoneNumberType.setPuhelinnumeroTeksti(puhelinnumero);
+    numbersType.getPhone().add(phoneNumberType);
   }
 
   private void addEmail(String email, ElectronicContactInfosType eContactInfos) {
-    if (email != null && email.length() > 0) {
-      ElectronicContactInfoType eContact = new ElectronicContactInfoType();
-      eContact.setContactInfoType(EMAIL);
-      eContact.setContactInfo(email);
-      eContactInfos.getEContactInfo().add(eContact);
-    }
+    ElectronicContactInfoType eContact = new ElectronicContactInfoType();
+    eContact.setContactInfoType(EMAIL);
+    eContact.setContactInfo(email);
+    eContactInfos.getEContactInfo().add(eContact);
   }
 
   private XMLGregorianCalendar parseBirthDate(String syntymaaika, String pic) throws Exception {
