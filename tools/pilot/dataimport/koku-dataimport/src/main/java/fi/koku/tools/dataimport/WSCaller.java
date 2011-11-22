@@ -45,7 +45,13 @@ public class WSCaller {
   private CommunityServicePortType communityService;
 
   public User getUserById(String userID) throws Exception {
-    return getLdapService().getUserById(userID);
+    try {
+      return getLdapService().getUserById(userID);
+    } catch (Exception e) {
+      System.err.println("Could not fetch user by ID: " + userID);
+      e.printStackTrace();
+      return null;
+    }
   }
 
   public CustomerType getCustomerByPic(String pic) {
@@ -68,7 +74,7 @@ public class WSCaller {
     customer.setSyntymaPvm(parseBirthDate(syntymaaika, pic));
     customer.setSukuNimi(lastName);
     customer.setEtuNimi(firstname);
-    customer.setEtunimetNimi(firstnames.trim());
+    customer.setEtunimetNimi(firstnames);
     // TODO set real data
     customer.setKansalaisuusKoodi("FI");
     // TODO these are not codes, just text, FIX?
@@ -88,8 +94,16 @@ public class WSCaller {
     // TODO set real data
     address.setAddressType(VIRALLINEN);
     address.setKatuNimi(katunimi);
-    address.setPostitoimipaikkaNimi(postiToimipaikka);
-    address.setPostinumeroKoodi(postinumero);
+    if (postiToimipaikka == null || postiToimipaikka.length() == 0) {
+      address.setPostitoimipaikkaNimi("");
+    } else {
+      address.setPostitoimipaikkaNimi(postiToimipaikka);
+    }
+    if (postinumero == null || postinumero.length() == 0) {
+      address.setPostinumeroKoodi("");
+    } else {
+      address.setPostinumeroKoodi(postinumero);
+    }
     // TODO set real data
     address.setPostilokeroTeksti("");
     address.setMaatunnusKoodi("");
@@ -135,15 +149,18 @@ public class WSCaller {
   }
 
   public void updateCommunity(String communityID, String dependantPic) throws Exception {
-    CommunityType community = getCommunityService().opGetCommunity(communityID, getCommunityAuditHeader());
-
+    CommunityType community = getCommunityService().opGetCommunity(communityID, getCommunityAuditHeader());   
     MembersType members = community.getMembers();
-    MemberType member = new MemberType();
-    member.setRole(DEPENDANT);
-    member.setPic(dependantPic);
-    members.getMember().add(member);
+    
+    // do not add duplicates
+    if (!members.getMember().contains(dependantPic)) {
+      MemberType member = new MemberType();
+      member.setRole(DEPENDANT);
+      member.setPic(dependantPic);
+      members.getMember().add(member);
 
-    getCommunityService().opUpdateCommunity(community, getCommunityAuditHeader());
+      getCommunityService().opUpdateCommunity(community, getCommunityAuditHeader());
+    }
   }
 
   private fi.koku.services.entity.community.v1.AuditInfoType getCommunityAuditHeader() {
@@ -190,10 +207,10 @@ public class WSCaller {
     int year = Integer.parseInt(syntymaaika.substring(4, 6));
 
     if (pic != null) {
-      if (pic.contains("A") || pic.contains("a")) {
-        year = year + 2000;
-      } else {
+      if (pic.contains("-")) {
         year = year + 1900;
+      } else {
+        year = year + 2000;
       }
     }
     cal.setYear(year);
