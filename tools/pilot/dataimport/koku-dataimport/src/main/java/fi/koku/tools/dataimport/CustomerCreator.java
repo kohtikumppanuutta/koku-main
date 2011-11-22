@@ -1,9 +1,7 @@
 package fi.koku.tools.dataimport;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +10,19 @@ import au.com.bytecode.opencsv.CSVReader;
 
 public class CustomerCreator {
 
+  private static final int HELMI_PM_2_PIC = 17;
+  private static final int HELMI_PM_1_PIC = 16;
+  private static final int HELMI_CHILD_LANGUAGE = 10;
+  private static final int HELMI_CHILD_KUNTA = 9;
+  private static final int HELMI_CHILD_NATIONALITY = 8;
+  private static final int HELMI_CHILD_FIRSTNAMES = 6;
+  private static final int HELMI_CHILD_LASTNAME = 7;
+  private static final int HELMI_PM_EMAILS = 14;
+  private static final int HELMI_PM_PHONES = 13;
+  private static final int HELMI_PMS = 15;
+  private static final int HELMI_CHILD_BIRTHDATE = 4;
+  private static final int HELMI_CHILD_UID_POSTFIX = 3;
+  private static final String TURVAKIELTO = "TURVAKIELTO";
   private static final int HELMI_ADDRESS = 12;
   private static final int EFFICA_PM_EMAIL_2 = 23;
   private static final int EFFICA_PM_EMAIL = 22;
@@ -56,12 +67,12 @@ public class CustomerCreator {
         }
 
         // Create child customer
-        if (caller.getCustomerByPic(l[EFFICA_CHILD_PIC]) == null) {          
+        if (caller.getCustomerByPic(l[EFFICA_CHILD_PIC]) == null) {
           customerIDs.add(caller.addCustomer(l[EFFICA_CHILD_PIC], l[EFFICA_CHILD_BIRTH_DATE], l[EFFICA_CHILD_LASTNAME],
               Utils.getFirstName(l[EFFICA_CHILD_FIRSTNAMES]), l[EFFICA_CHILD_FIRSTNAMES],
               l[EFFICA_CHILD_KANSALAISUUSKOODI], l[EFFICA_CHILD_KUNTAKOODI], l[EFFICA_CHILD_KIELIKOODI],
-              l[EFFICA_CHILD_ADDRESS], l[EFFICA_CHILD_POST_OFFICE], l[EFFICA_CHILD_POST_CODE], l[EFFICA_CHILD_PHONE],
-              null, null, null));
+              removeTurvaKielto(l[EFFICA_CHILD_ADDRESS]), l[EFFICA_CHILD_POST_OFFICE], l[EFFICA_CHILD_POST_CODE],
+              l[EFFICA_CHILD_PHONE], null, null, null));
         }
         
         // Create 'päämies'
@@ -79,7 +90,7 @@ public class CustomerCreator {
         if (communityID == null) {
           communityID = caller.createCommunity(Utils.getFirstName(l[EFFICA_PM_FIRSTNAMES]) + COMMUNITY_SUFFIX,
               l[EFFICA_PM_PIC]);
-          picToCommunity.put(l[16], communityID);
+          picToCommunity.put(l[EFFICA_PM_PIC], communityID);
         }
         // add child to parent's community
         caller.updateCommunity(communityID, l[EFFICA_CHILD_PIC]);
@@ -99,7 +110,7 @@ public class CustomerCreator {
     Utils.writeIDsToFile(parent, customerIDs, EFFICA_ADDED_CUSTOMER_IDS_TXT);
     Utils.writeIDsToFile(parent, picToCommunity.values(), EFFICA_ADDED_COMMUNITY_IDS_TXT);
   }
-  
+
   public void createHelmiCustomers(CSVReader reader, WSCaller caller, File parent) throws Exception {
 
     List<String> customerIDs = new ArrayList<String>();
@@ -108,26 +119,28 @@ public class CustomerCreator {
     String[] l;
     while ((l = reader.readNext()) != null) {
       try {
-        String[] guardians = Utils.splitLines(l[15]);
-        String[] phones = Utils.splitLines(l[13]);
-        String[] emails = Utils.splitLines(l[14]);
+        String[] guardians = Utils.splitLines(l[HELMI_PMS]);
+        String[] phones = Utils.splitLines(l[HELMI_PM_PHONES]);
+        String[] emails = Utils.splitLines(l[HELMI_PM_EMAILS]);
 
         // remove whitespace
         for (int i = 0; i < l.length; i++) {
           l[i] = l[i].trim();
         }
 
-        String childPIC = Utils.createUID(l[3], l[4]);
+        String childPIC = Utils.createUID(l[HELMI_CHILD_UID_POSTFIX], l[HELMI_CHILD_BIRTHDATE]);
 
         // Create child customer
-        if (caller.getCustomerByPic(childPIC) == null) {          
+        if (caller.getCustomerByPic(childPIC) == null) {
           // TODO add post office and post code
-          customerIDs.add(caller.addCustomer(childPIC, Utils.parseBirthDate(l[4]), l[7], Utils.getFirstName(l[6]),
-              l[6], l[8], l[9], l[10], l[HELMI_ADDRESS], null, null, null, null, null, null));
+          customerIDs.add(caller.addCustomer(childPIC, Utils.parseBirthDate(l[HELMI_CHILD_BIRTHDATE]),
+              l[HELMI_CHILD_LASTNAME], Utils.getFirstName(l[HELMI_CHILD_FIRSTNAMES]), l[HELMI_CHILD_FIRSTNAMES],
+              l[HELMI_CHILD_NATIONALITY], l[HELMI_CHILD_KUNTA], l[HELMI_CHILD_LANGUAGE], l[HELMI_ADDRESS], null, null,
+              null, null, null, null));
         }
-        
+
         // Create 'päämies'
-        if (caller.getCustomerByPic(l[16]) == null) {
+        if (caller.getCustomerByPic(l[HELMI_PM_1_PIC]) == null) {
           // this is not a copy paste mistake, the Helmi data has
           // the last name first
           String lastName = Utils.getFirstName(guardians[0]);
@@ -135,44 +148,49 @@ public class CustomerCreator {
 
           // TODO add post office and post code
           // TODO replace hardcoded values
-          customerIDs.add(caller.addCustomer(l[16], getBirthDate(l[16]), lastName, Utils.getFirstName(firstNames),
-              firstNames, "FI", "011", "FI", l[HELMI_ADDRESS], null, null, null, phones[0], emails[0], null));
+          customerIDs.add(caller.addCustomer(l[HELMI_PM_1_PIC], getBirthDate(l[HELMI_PM_1_PIC]), lastName,
+              Utils.getFirstName(firstNames), firstNames, "FI", "011", "FI", l[HELMI_ADDRESS], null, null, null,
+              phones[0], emails[0], null));
         }
 
         // create 'päämies' community if it does not exist
-        String communityID = picToCommunity.get(l[16]);
+        String communityID = picToCommunity.get(l[HELMI_PM_1_PIC]);
         if (communityID == null) {
           // Still not copy paste mistake
           communityID = caller.createCommunity(
-              Utils.getFirstName(Utils.getSecondName(guardians[0])) + COMMUNITY_SUFFIX, l[16]);
-          picToCommunity.put(l[16], communityID);
+              Utils.getFirstName(Utils.getSecondName(guardians[0])) + COMMUNITY_SUFFIX, l[HELMI_PM_1_PIC]);
+          picToCommunity.put(l[HELMI_PM_1_PIC], communityID);
         }
         // add child to parent's community
         caller.updateCommunity(communityID, childPIC);
 
-        // Create 'toinen huoltaja'
-        if (guardians[1] != null && guardians[1].length() > 0 && caller.getCustomerByPic(l[17]) == null) {
-          // this is not a copy paste mistake, the Helmi data has
-          // the last name first
-          String lastName = Utils.getFirstName(guardians[1]);
-          String firstNames = Utils.getSecondName(guardians[1]);
+        if (guardians[1] != null && guardians[1].length() > 0 && l[HELMI_PM_2_PIC] != null
+            && l[HELMI_PM_2_PIC].length() > 0) {
+          // Create 'toinen huoltaja'
+          if (caller.getCustomerByPic(l[HELMI_PM_2_PIC]) == null) {
+            // this is not a copy paste mistake, the Helmi data has
+            // the last name first
+            String lastName = Utils.getFirstName(guardians[1]);
+            String firstNames = Utils.getSecondName(guardians[1]);
 
-          // TODO add post office and post code
-          // TODO replace hardcoded values
-          customerIDs.add(caller.addCustomer(l[17], getBirthDate(l[17]), lastName, Utils.getFirstName(firstNames),
-              firstNames, "FI", "011", "FI", l[HELMI_ADDRESS], null, null, null, phones[1], emails[1], null));
-        }
+            // TODO add post office and post code
+            // TODO replace hardcoded values
+            customerIDs.add(caller.addCustomer(l[HELMI_PM_2_PIC], getBirthDate(l[HELMI_PM_2_PIC]), lastName,
+                Utils.getFirstName(firstNames), firstNames, "FI", "011", "FI", l[HELMI_ADDRESS], null, null, null,
+                phones[1], emails[1], null));
+          }
 
-        // create community if it does not exist
-        communityID = picToCommunity.get(l[17]);
-        if (communityID == null) {
-          // Still not copy paste mistake
-          communityID = caller.createCommunity(
-              Utils.getFirstName(Utils.getSecondName(guardians[1])) + COMMUNITY_SUFFIX, l[17]);
-          picToCommunity.put(l[17], communityID);
+          // create community if it does not exist
+          communityID = picToCommunity.get(l[HELMI_PM_2_PIC]);
+          if (communityID == null) {
+            // Still not copy paste mistake
+            communityID = caller.createCommunity(Utils.getFirstName(Utils.getSecondName(guardians[1]))
+                + COMMUNITY_SUFFIX, l[HELMI_PM_2_PIC]);
+            picToCommunity.put(l[HELMI_PM_2_PIC], communityID);
+          }
+          // add child to parent's community
+          caller.updateCommunity(communityID, childPIC);
         }
-        // add child to parent's community
-        caller.updateCommunity(communityID, childPIC);
       } catch (Exception e) {
         System.err.println("Data: ");
         for (int i = 0; i < l.length; i++) {
@@ -188,6 +206,14 @@ public class CustomerCreator {
 
     Utils.writeIDsToFile(parent, customerIDs, HELMI_ADDED_CUSTOMER_IDS_TXT);
     Utils.writeIDsToFile(parent, picToCommunity.values(), HELMI_ADDED_COMMUNITY_IDS_TXT);
+  }
+  
+  private String removeTurvaKielto(String text) {
+    if (text != null && TURVAKIELTO.equals(text)) {
+      return "";
+    } else {
+      return text;
+    }
   }
 
   private String getBirthDate(String pic) throws Exception {
