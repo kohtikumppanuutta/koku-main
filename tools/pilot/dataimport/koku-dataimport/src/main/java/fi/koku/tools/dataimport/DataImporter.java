@@ -41,8 +41,6 @@ public class DataImporter {
 
       // User selected Employee
       if (returnvalue == 0) {
-
-        System.out.println("employee");
         CSVReader reader = new CSVReader(new FileReader(file));
         try {
           new LDIFWriter().writeEmployeeLDIF(reader, caller, file.getParentFile());
@@ -51,8 +49,6 @@ public class DataImporter {
         }
       // Effica Customer
       } else if (returnvalue == 1) {
-
-        System.out.println("effica");
         CSVReader reader = new CSVReader(new FileReader(file));
         try {
           new LDIFWriter().writeEfficaCustomerLDIF(reader, file.getParentFile());
@@ -68,7 +64,6 @@ public class DataImporter {
         }
       // Helmi Customer
       } else if (returnvalue == 2) {
-        System.out.println("helmi");
         CSVReader reader = new CSVReader(new FileReader(file));
         try {
           new LDIFWriter().writeHelmiCustomerLDIF(reader, file.getParentFile());

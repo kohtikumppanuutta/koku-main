@@ -10,7 +10,6 @@ import java.util.Map;
 
 import au.com.bytecode.opencsv.CSVReader;
 import fi.arcusys.tampere.hrsoa.entity.User;
-import fi.koku.services.entity.customer.v1.PhoneNumbersType;
 
 public class LDIFWriter {
 
