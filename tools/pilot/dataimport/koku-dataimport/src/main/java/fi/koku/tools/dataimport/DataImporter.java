@@ -62,7 +62,7 @@ public class DataImporter {
 
         reader = new CSVReader(new FileReader(file));        
         try {
-          new CustomerCreator().createCustomers(reader, caller, file.getParentFile());
+          new CustomerCreator().createEfficaCustomers(reader, caller, file.getParentFile());
         } finally {
           reader.close();
         }
@@ -75,22 +75,15 @@ public class DataImporter {
         } finally {
           reader.close();
         }
-
-        //TODO
-        // customer creator helmidatalle
-        // lapsien ryhmien luonti LDIF:iin ja KOKUUN?
-        // 
-        // TESTAUS
-        
-        
-        
-//        reader = new CSVReader(new FileReader(file));
-//        try {
-//          new CustomerCreator().createCustomers(reader, caller, file.getParentFile());
-//        } finally {
-//          reader.close();
-//        }
+                       
+        reader = new CSVReader(new FileReader(file));
+        try {
+          new CustomerCreator().createHelmiCustomers(reader, caller, file.getParentFile());
+        } finally {
+          reader.close();
+        }
       }
     }
+    System.out.println("Done.");
   }
 }
