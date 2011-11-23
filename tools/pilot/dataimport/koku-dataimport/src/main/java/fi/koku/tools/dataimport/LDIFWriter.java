@@ -294,7 +294,7 @@ public class LDIFWriter {
    * member: cn=${portal.user.name},ou=People,o=koku,dc=example,dc=org
    */
   private void writeGroupLDIF(FileWriter writer, String listType, List<String> userIDs) throws Exception {
-    writer.write("dn: cn=" + listType + ",ou=Groups,o=koku,dc=example,dc=org" + "\n");
+    writer.write("dn: cn=" + listType + ",ou=Groups,ou=KokuCommunities,o=koku,dc=example,dc=org" + "\n");
     writer.write("cn: " + listType + "\n");
     writer.write("objectClass: groupOfNames" + "\n");
     writer.write("objectClass: top" + "\n");
@@ -319,6 +319,7 @@ public class LDIFWriter {
     writer.write("objectClass: inetOrgPerson" + "\n");
     writer.write("objectClass: top" + "\n");
     writer.write("sn: " + lastName + "\n");
+    //userPassword:: dGVzdA==
     writer.write("userPassword: test" + "\n");
     if (tel != null && tel.length() != 0) {
       writer.write("telephoneNumber: " + tel + "\n");
