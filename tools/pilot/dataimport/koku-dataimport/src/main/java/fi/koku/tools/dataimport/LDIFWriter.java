@@ -57,11 +57,13 @@ public class LDIFWriter {
   private static final String KUNTALAINEN = "kuntalainen";
   private static final String EFFICA_CUSTOMER_GROUP_LDIF_FILE = "EfficaCustomerGroup.ldif";
   private static final String EFFICA_CUSTOMER_LDIF_FILE = "EfficaCustomer.ldif";
+  private static final String EFFICA_ALL_LDIF_FILE = "Effica_All.ldif";
+  private static final String HELMI_ALL_LDIF_FILE = "Helmi_All.ldif";
   private static final String HELMI_CUSTOMER_GROUP_LDIF_FILE = "HelmiCustomerGroup.ldif";
   private static final String HELMI_CUSTOMER_LDIF_FILE = "HelmiCustomer.ldif";
   private static final String EMPLOYEE_GROUP_LDIF_FILE = "EmployeeGroup.ldif";
   private static final String EMPLOYEE_LDIF_FILE = "Employee.ldif";
-  private static final String ALL_LDIF_FILE = "all.ldif";
+  private static final String EMPLOYEE_ALL_LDIF_FILE = "Employee_all.ldif";
   private static final String NOT_FOUND_EMPLOYEE_IDS_TXT = "NotFoundEmployeeIDS.txt";
 
   public void writeEmployeeLDIF(CSVReader reader, WSCaller caller, File parent) throws Exception {
@@ -72,7 +74,7 @@ public class LDIFWriter {
     FileWriter allWriter = null;
 
     try {
-      allWriter = new FileWriter(new File(parent, ALL_LDIF_FILE));
+      allWriter = new FileWriter(new File(parent, EMPLOYEE_ALL_LDIF_FILE));
 
       try {
         writer = new FileWriter(new File(parent, EMPLOYEE_LDIF_FILE));
@@ -92,10 +94,8 @@ public class LDIFWriter {
             // try to avoid duplicates
             if (!userIDs.contains(user.getUserId())) {
               // TODO is user.getUserId() the correct id for this case?
-              writePersonLDIF(writer, user.getUserId(), user.getFirstName(), user.getLastName(), null, user.getEmail(),
-                  user.getSsn());
-              writePersonLDIF(allWriter, user.getUserId(), user.getFirstName(), user.getLastName(), null, user.getEmail(),
-                  user.getSsn());
+              writePersonLDIF(writer, allWriter, user.getUserId(), user.getFirstName(), user.getLastName(), null, user.getEmail(),
+                  user.getSsn());              
               userIDs.add(user.getUserId());
 
               List<String> users = groupToUsers.get(l[EMPLOYEE_GROUP]);
@@ -117,19 +117,18 @@ public class LDIFWriter {
           writer.close();
         }
       }
-      System.out.println("Employee LDIF written successfully");
+      System.out.println("Employee LDIF written");
 
       try {
         writer = new FileWriter(new File(parent, EMPLOYEE_GROUP_LDIF_FILE));
-        writeGroupsLDIF(writer, VIRKAILIJA, userIDs);
-        writeGroupsLDIF(allWriter, VIRKAILIJA, userIDs);
+        writeGroupsLDIF(writer, allWriter, VIRKAILIJA, userIDs);
         writer.close();
       } finally {
         if (writer != null) {
           writer.close();
         }
       }
-      System.out.println("Employee Group LDIF written successfully");
+      System.out.println("Employee Group LDIF written");
 
       for (String group : groupToUsers.keySet()) {
 
@@ -142,14 +141,11 @@ public class LDIFWriter {
             writer = new FileWriter(new File(parent, EMPLOYEE_REGISTRY_FILENAME_PREFIX + group + LDIF_FILE_SUFFIX));
 
             if (NEUVOLAN_TYÖNTEKIJÄ.equals(group)) {
-              writeKokuCommunitiesLDIF(writer, HEALTHCAREREGISTRY, REGISTRIES, users);
-              writeKokuCommunitiesLDIF(allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
+              writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);              
             } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group)) {
-              writeKokuCommunitiesLDIF(writer, DAYCAREREGISTRY, REGISTRIES, users);
-              writeKokuCommunitiesLDIF(allWriter, DAYCAREREGISTRY, REGISTRIES, users);
+              writeKokuCommunitiesLDIF(writer, allWriter, DAYCAREREGISTRY, REGISTRIES, users);
             } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
-              writeKokuCommunitiesLDIF(writer, HEALTHCAREREGISTRY, REGISTRIES, users);
-              writeKokuCommunitiesLDIF(allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
+              writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
             }
 
             writer.close();
@@ -163,14 +159,11 @@ public class LDIFWriter {
             writer = new FileWriter(new File(parent, EMPLOYEE_ORG_UNIT_FILENAME_PREFIX + group + LDIF_FILE_SUFFIX));
 
             if (NEUVOLAN_TYÖNTEKIJÄ.equals(group)) {
-              writeKokuCommunitiesLDIF(writer, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS, users);
-              writeKokuCommunitiesLDIF(allWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS, users);
+              writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS, users);
             } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group)) {
-              writeKokuCommunitiesLDIF(writer, KK_SERVICEAREA_DAYCARE, ORG_UNITS, users);
-              writeKokuCommunitiesLDIF(allWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS, users);
+              writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS, users);
             } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
-              writeKokuCommunitiesLDIF(writer, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS, users);
-              writeKokuCommunitiesLDIF(allWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS, users);
+              writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS, users);
             }
 
             writer.close();
@@ -189,9 +182,9 @@ public class LDIFWriter {
       }
     }
     
-    System.out.println("Employee ALL LDIF written successfully");    
-    System.out.println("Employee Registry LDIFs written successfully");
-    System.out.println("Employee OrgUnit LDIFs written successfully");
+    System.out.println("Employee ALL LDIF written");    
+    System.out.println("Employee Registry LDIFs written");
+    System.out.println("Employee OrgUnit LDIFs written");
       
     if (failedTOAddIDs.size() > 0) {
       Utils.writeIDsToFile(parent, failedTOAddIDs, NOT_FOUND_EMPLOYEE_IDS_TXT);
@@ -203,156 +196,182 @@ public class LDIFWriter {
     Map<String, List<String>> childGroupToUIDs = new HashMap<String, List<String>>();
 
     FileWriter writer = null;
-    try {
-      writer = new FileWriter(new File(parent, EFFICA_CUSTOMER_LDIF_FILE));
-
-      String[] l;
-      while ((l = reader.readNext()) != null) {
-
-        // remove whitespace
-        for (int i = 0; i < l.length; i++) {
-          l[i] = l[i].trim();
-        }  
-                       
-        // lapsi
-        if (!addedUserIDs.contains(l[EFFICA_CHILD_UID])) {
-          writePersonLDIF(writer, l[EFFICA_CHILD_UID], Utils.getFirstName(l[EFFICA_CHILD_FIRSTNAMES]),
-              l[EFFICA_CHILD_LASTNAME], l[EFFICA_CHILD_TEL], null, l[EFFICA_CHILD_UID]);
-          addedUserIDs.add(l[EFFICA_CHILD_UID]);
-        }
-        
-        String groupID = l[EFFICA_CHILD_UNIT] + ", " + l[EFFICA_CHILD_GROUP];
-        List<String> groupUIDs = childGroupToUIDs.get(groupID);
-        if (groupUIDs == null) {
-          groupUIDs = new ArrayList<String>();
-        }        
-        if (!groupUIDs.contains(l[EFFICA_CHILD_UID])) {
-          groupUIDs.add(l[EFFICA_CHILD_UID]);
-        }
-        childGroupToUIDs.put(groupID, groupUIDs);
-
-        // päähenkilö
-        if (!addedUserIDs.contains(l[EFFICA_PM_UID])) {
-          // TODO l[23] voi sisältää toisen sähköpostiosoitteen, voiko
-          // sen lisätä LDIF:iin?
-          writePersonLDIF(writer, l[EFFICA_PM_UID], Utils.getFirstName(l[EFFICA_PM_FIRSTNAMES]), l[EFFICA_PM_LASTNAME],
-              getPreferredPhone(l[EFFICA_PM_GSM], l[EFFICA_PM_PHONE]), l[EFFICA_PM_EMAIL], l[EFFICA_PM_UID]);
-          addedUserIDs.add(l[EFFICA_PM_UID]);
-        }
-
-        // puoliso
-        // TODO nextLine[30] voi sisältää toisen sähköpostiosoitteen, voiko sen
-        // lisätä LDIF:iin?
-        // writePersonLDIF(writer, "PUUTTUUU", getFirstName(nextLine[27]),
-        // nextLine[26], nextLine[29], null);
-        // userIDs.add("PUUTTUUU");
-      }
-      writer.close();
-    } finally {
-      if (writer != null) {
-        writer.close();
-      }
-    }
-    System.out.println("Customer LDIF written successfully");
+    FileWriter allWriter = null;
 
     try {
-      writer = new FileWriter(new File(parent, EFFICA_CUSTOMER_GROUP_LDIF_FILE));
-      writeGroupsLDIF(writer, KUNTALAINEN, addedUserIDs);
-      writer.close();
-    } finally {
-      if (writer != null) {
+      allWriter = new FileWriter(new File(parent, EFFICA_ALL_LDIF_FILE));
+
+      try {
+        writer = new FileWriter(new File(parent, EFFICA_CUSTOMER_LDIF_FILE));
+
+        String[] l;
+        while ((l = reader.readNext()) != null) {
+
+          // remove whitespace
+          for (int i = 0; i < l.length; i++) {
+            l[i] = l[i].trim();
+          }
+
+          // lapsi
+          if (!addedUserIDs.contains(l[EFFICA_CHILD_UID])) {
+            writePersonLDIF(writer, allWriter, l[EFFICA_CHILD_UID], Utils.getFirstName(l[EFFICA_CHILD_FIRSTNAMES]),
+                l[EFFICA_CHILD_LASTNAME], l[EFFICA_CHILD_TEL], null, l[EFFICA_CHILD_UID]);            
+            addedUserIDs.add(l[EFFICA_CHILD_UID]);
+          }
+
+          String groupID = l[EFFICA_CHILD_UNIT] + ", " + l[EFFICA_CHILD_GROUP];
+          List<String> groupUIDs = childGroupToUIDs.get(groupID);
+          if (groupUIDs == null) {
+            groupUIDs = new ArrayList<String>();
+          }
+          if (!groupUIDs.contains(l[EFFICA_CHILD_UID])) {
+            groupUIDs.add(l[EFFICA_CHILD_UID]);
+          }
+          childGroupToUIDs.put(groupID, groupUIDs);
+
+          // päähenkilö
+          if (!addedUserIDs.contains(l[EFFICA_PM_UID])) {
+            // TODO l[23] voi sisältää toisen sähköpostiosoitteen, voiko
+            // sen lisätä LDIF:iin?
+            writePersonLDIF(writer, allWriter, l[EFFICA_PM_UID], Utils.getFirstName(l[EFFICA_PM_FIRSTNAMES]),
+                l[EFFICA_PM_LASTNAME], getPreferredPhone(l[EFFICA_PM_GSM], l[EFFICA_PM_PHONE]), l[EFFICA_PM_EMAIL],
+                l[EFFICA_PM_UID]);           
+            addedUserIDs.add(l[EFFICA_PM_UID]);
+          }
+
+          // puoliso
+          // TODO nextLine[30] voi sisältää toisen sähköpostiosoitteen, voiko
+          // sen
+          // lisätä LDIF:iin?
+          // writePersonLDIF(writer, "PUUTTUUU", getFirstName(nextLine[27]),
+          // nextLine[26], nextLine[29], null);
+          // userIDs.add("PUUTTUUU");
+        }
         writer.close();
+      } finally {
+        if (writer != null) {
+          writer.close();
+        }
+      }
+      System.out.println("Effica Customer LDIF written");
+
+      try {
+        writer = new FileWriter(new File(parent, EFFICA_CUSTOMER_GROUP_LDIF_FILE));
+        writeGroupsLDIF(writer, allWriter, KUNTALAINEN, addedUserIDs);
+        writer.close();
+      } finally {
+        if (writer != null) {
+          writer.close();
+        }
+      }
+      System.out.println("Effica Customer Group LDIF written");
+
+      writeChildGroupLDIFs(parent, allWriter, childGroupToUIDs);
+
+      allWriter.close();
+    } finally {
+      if (allWriter != null) {
+        allWriter.close();
       }
     }
-    System.out.println("Customer Group LDIF written successfully");
-
-    writeChildGroupLDIFs(parent, childGroupToUIDs);
+    System.out.println("Effica all LDIF written");
   }
 
   public void writeHelmiCustomerLDIF(CSVReader reader, File parent) throws Exception {
     List<String> addedUserIDs = new ArrayList<String>();
     Map<String, List<String>> childGroupToUIDs = new HashMap<String, List<String>>();
     FileWriter writer = null;
-    try {
-      writer = new FileWriter(new File(parent, HELMI_CUSTOMER_LDIF_FILE));
-
-      String[] l;
-      while ((l = reader.readNext()) != null) {       
-        
-        String[] phones = Utils.splitLines(l[HELMI_PM_PHONES]);
-        String[] emails = Utils.splitLines(l[HELMI_PM_EMAILS]);
-        String[] guardians = Utils.splitLines(l[HELMI_PMS]);
-        
-        // remove whitespace
-        for (int i = 0; i < l.length; i++) {
-          l[i] = l[i].trim();
-        }  
-
-        String childUID = Utils.createUID(l[HELMI_CHILD_UID_POSTFIX], l[HELMI_CHILD_BIRTHDATE]);
-
-        // lapsi
-        if (!addedUserIDs.contains(childUID)) {
-          writePersonLDIF(writer, childUID, Utils.getFirstName(l[HELMI_CHILD_FIRSTNAMES]), l[HELMI_CHILD_LASTNAME],
-              null, null, childUID);
-          addedUserIDs.add(childUID);
-        }
-
-        String groupID = l[HELMI_CHILD_UNIT] + ", " + l[HELMI_CHILD_GROUP];
-        List<String> groupUIDs = childGroupToUIDs.get(groupID);
-        if (groupUIDs == null) {
-          groupUIDs = new ArrayList<String>();
-        }
-        
-        if (!groupUIDs.contains(childUID)) {
-          groupUIDs.add(childUID);
-        }
-        childGroupToUIDs.put(groupID, groupUIDs);
-        
-        // päähenkilö
-        if (!addedUserIDs.contains(l[HELMI_PM_1_UID])) {
-          // this is not a copy paste mistake, the Helmi data has
-          // the last name first
-          String lastName = Utils.getFirstName(guardians[0]);
-          String firstNames = Utils.getSecondName(guardians[0]);
-          writePersonLDIF(writer, l[HELMI_PM_1_UID], Utils.getFirstName(firstNames), lastName, phones[0], emails[0],
-              l[HELMI_PM_1_UID]);
-          addedUserIDs.add(l[HELMI_PM_1_UID]);
-        }
-
-        // toinen huoltaja
-        if (guardians[1] != null && guardians[1].length() > 0 && !addedUserIDs.contains(l[HELMI_PM_2_UID])) {
-          // this is not a copy paste mistake, the Helmi data has
-          // the last name first
-          String lastName = Utils.getFirstName(guardians[1]);
-          String firstNames = Utils.getSecondName(guardians[1]);
-          writePersonLDIF(writer, l[HELMI_PM_2_UID], Utils.getFirstName(firstNames), lastName, phones[1], emails[1],
-              l[HELMI_PM_2_UID]);
-          addedUserIDs.add(l[HELMI_PM_2_UID]);
-        }
-      }
-      writer.close();
-    } finally {
-      if (writer != null) {
-        writer.close();
-      }
-    }
-    System.out.println("Customer LDIF written successfully");
+    FileWriter allWriter = null;
 
     try {
-      writer = new FileWriter(new File(parent, HELMI_CUSTOMER_GROUP_LDIF_FILE));
-      writeGroupsLDIF(writer, KUNTALAINEN, addedUserIDs);
-      writer.close();
-    } finally {
-      if (writer != null) {
+      allWriter = new FileWriter(new File(parent, HELMI_ALL_LDIF_FILE));
+      try {
+        writer = new FileWriter(new File(parent, HELMI_CUSTOMER_LDIF_FILE));
+
+        String[] l;
+        while ((l = reader.readNext()) != null) {
+
+          String[] phones = Utils.splitLines(l[HELMI_PM_PHONES]);
+          String[] emails = Utils.splitLines(l[HELMI_PM_EMAILS]);
+          String[] guardians = Utils.splitLines(l[HELMI_PMS]);
+
+          // remove whitespace
+          for (int i = 0; i < l.length; i++) {
+            l[i] = l[i].trim();
+          }
+
+          String childUID = Utils.createUID(l[HELMI_CHILD_UID_POSTFIX], l[HELMI_CHILD_BIRTHDATE]);
+
+          // lapsi
+          if (!addedUserIDs.contains(childUID)) {
+            writePersonLDIF(writer, allWriter, childUID, Utils.getFirstName(l[HELMI_CHILD_FIRSTNAMES]), l[HELMI_CHILD_LASTNAME],
+                null, null, childUID);            
+            addedUserIDs.add(childUID);
+          }
+
+          String groupID = l[HELMI_CHILD_UNIT] + ", " + l[HELMI_CHILD_GROUP];
+          List<String> groupUIDs = childGroupToUIDs.get(groupID);
+          if (groupUIDs == null) {
+            groupUIDs = new ArrayList<String>();
+          }
+
+          if (!groupUIDs.contains(childUID)) {
+            groupUIDs.add(childUID);
+          }
+          childGroupToUIDs.put(groupID, groupUIDs);
+
+          // päähenkilö
+          if (!addedUserIDs.contains(l[HELMI_PM_1_UID])) {
+            // this is not a copy paste mistake, the Helmi data has
+            // the last name first
+            String lastName = Utils.getFirstName(guardians[0]);
+            String firstNames = Utils.getSecondName(guardians[0]);
+            writePersonLDIF(writer, allWriter, l[HELMI_PM_1_UID], Utils.getFirstName(firstNames), lastName, phones[0], emails[0],
+                l[HELMI_PM_1_UID]);
+            addedUserIDs.add(l[HELMI_PM_1_UID]);
+          }
+
+          // toinen huoltaja
+          if (guardians[1] != null && guardians[1].length() > 0 && !addedUserIDs.contains(l[HELMI_PM_2_UID])) {
+            // this is not a copy paste mistake, the Helmi data has
+            // the last name first
+            String lastName = Utils.getFirstName(guardians[1]);
+            String firstNames = Utils.getSecondName(guardians[1]);
+            writePersonLDIF(writer, allWriter, l[HELMI_PM_2_UID], Utils.getFirstName(firstNames), lastName, phones[1], emails[1],
+                l[HELMI_PM_2_UID]);
+            addedUserIDs.add(l[HELMI_PM_2_UID]);
+          }
+        }
         writer.close();
+      } finally {
+        if (writer != null) {
+          writer.close();
+        }
+      }
+      System.out.println("Customer LDIF written");
+
+      try {
+        writer = new FileWriter(new File(parent, HELMI_CUSTOMER_GROUP_LDIF_FILE));
+        writeGroupsLDIF(writer, allWriter, KUNTALAINEN, addedUserIDs);
+        writer.close();
+      } finally {
+        if (writer != null) {
+          writer.close();
+        }
+      }
+      System.out.println("Customer Group LDIF written");
+
+      writeChildGroupLDIFs(parent, allWriter, childGroupToUIDs);
+
+      allWriter.close();
+    } finally {
+      if (allWriter != null) {
+        allWriter.close();
       }
     }
-    System.out.println("Customer Group LDIF written successfully");
-
-    writeChildGroupLDIFs(parent, childGroupToUIDs);
   }
 
-  private void writeChildGroupLDIFs(File parent, Map<String, List<String>> childGroupToUIDs) throws IOException,
+  private void writeChildGroupLDIFs(File parent, FileWriter allWriter, Map<String, List<String>> childGroupToUIDs) throws IOException,
       Exception {
     FileWriter writer = null;
     for (String groupName : childGroupToUIDs.keySet()) {
@@ -360,7 +379,7 @@ public class LDIFWriter {
 
       try {
         writer = new FileWriter(new File(parent, groupName + LDIF_FILE_SUFFIX));
-        writeGroupsLDIF(writer, groupName, groupUIDs);
+        writeGroupsLDIF(writer, allWriter, groupName, groupUIDs);        
         writer.close();
       } finally {
         if (writer != null) {
@@ -368,7 +387,7 @@ public class LDIFWriter {
         }
       }
     }
-    System.out.println("Child Group LDIFs written successfully");
+    System.out.println("Child Group LDIFs written");
   }
 
   private String getPreferredPhone(String phone1, String phone2) {
@@ -379,6 +398,12 @@ public class LDIFWriter {
     }
 
     return null;
+  }
+  
+  private void writeKokuCommunitiesLDIF(FileWriter writer, FileWriter allWriter, String cn, String ou,
+      List<String> userIDs) throws Exception {
+    writeKokuCommunitiesLDIF(writer, cn, ou, userIDs);
+    writeKokuCommunitiesLDIF(allWriter, cn, ou, userIDs);
   }
 
   private void writeKokuCommunitiesLDIF(FileWriter writer, String cn, String ou, List<String> userIDs) throws Exception {  
@@ -392,6 +417,11 @@ public class LDIFWriter {
     writer.write("\n");
   }
 
+  private void writeGroupsLDIF(FileWriter writer, FileWriter allWriter, String listType, List<String> userIDs)
+      throws Exception {
+    writeGroupsLDIF(writer, listType, userIDs);
+    writeGroupsLDIF(allWriter, listType, userIDs);
+  }  
   
   private void writeGroupsLDIF(FileWriter writer, String listType, List<String> userIDs) throws Exception {
     writer.write("dn: cn=" + listType + ",ou=Groups,o=koku,dc=example,dc=org" + "\n");
@@ -403,7 +433,13 @@ public class LDIFWriter {
     }
     writer.write("\n");
   }
-
+  
+  private void writePersonLDIF(FileWriter writer, FileWriter allWriter, String userId, String firstName,
+      String lastName, String tel, String email, String uid) throws Exception {
+    writePersonLDIF(writer, userId, firstName, lastName, tel, email, uid);
+    writePersonLDIF(allWriter, userId, firstName, lastName, tel, email, uid);
+  }
+  
   private void writePersonLDIF(FileWriter writer, String userId, String firstName, String lastName, String tel, String email,
       String uid) throws Exception {
     writer.write("dn: cn=" + userId + ",ou=People,o=koku,dc=example,dc=org" + "\n");
