@@ -26,6 +26,7 @@ public class LDIFWriter {
   private static final String KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ = "Kouluterveydenhuollon työntekijä";
   private static final String PÄIVÄKODIN_TYÖNTEKIJÄ = "Päiväkodin työntekijä";
   private static final String NEUVOLAN_TYÖNTEKIJÄ = "Neuvolan työntekijä";
+  
   private static final int EMPLOYEE_ID = 0;
   private static final int EMPLOYEE_GROUP = 1;
   private static final int HELMI_CHILD_GROUP = 19;
@@ -332,7 +333,9 @@ public class LDIFWriter {
           }
 
           // toinen huoltaja
-          if (guardians[1] != null && guardians[1].length() > 0 && !addedUserIDs.contains(l[HELMI_PM_2_UID])) {
+          if (guardians[1] != null && guardians[1].length() > 0 && 
+              l[HELMI_PM_2_UID] != null && l[HELMI_PM_2_UID].length() > 0 &&
+              !addedUserIDs.contains(l[HELMI_PM_2_UID])) {
             // this is not a copy paste mistake, the Helmi data has
             // the last name first
             String lastName = Utils.getFirstName(guardians[1]);
