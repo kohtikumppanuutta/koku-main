@@ -104,8 +104,8 @@ public class CustomerCreator {
       }
     }
 
-    System.out.println(customerIDs.size() + " customers added successfully");
-    System.out.println(picToCommunity.size() + " communities added successfully");
+    System.out.println(customerIDs.size() + " customers added");
+    System.out.println(picToCommunity.size() + " communities added");
 
     Utils.writeIDsToFile(parent, customerIDs, EFFICA_ADDED_CUSTOMER_IDS_TXT);
     Utils.writeIDsToFile(parent, picToCommunity.values(), EFFICA_ADDED_COMMUNITY_IDS_TXT);
@@ -201,8 +201,8 @@ public class CustomerCreator {
       }
     }
 
-    System.out.println(customerIDs.size() + " customers added successfully");
-    System.out.println(picToCommunity.size() + " communities added successfully");
+    System.out.println(customerIDs.size() + " customers added");
+    System.out.println(picToCommunity.size() + " communities added");
 
     Utils.writeIDsToFile(parent, customerIDs, HELMI_ADDED_CUSTOMER_IDS_TXT);
     Utils.writeIDsToFile(parent, picToCommunity.values(), HELMI_ADDED_COMMUNITY_IDS_TXT);
