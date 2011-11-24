@@ -21,7 +21,7 @@ public class Utils {
         writer.close();
       }
     }
-    System.out.println(filename + " written successfully");
+    System.out.println(filename + " written");
   }
   
   public static String createUID(String UID_postfix, String childBirthDate) {
