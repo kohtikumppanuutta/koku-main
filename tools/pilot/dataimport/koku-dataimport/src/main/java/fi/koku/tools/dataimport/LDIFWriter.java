@@ -73,9 +73,11 @@ public class LDIFWriter {
     List<String> failedTOAddIDs = new ArrayList<String>();
     FileWriter writer = null;
     FileWriter allWriter = null;
+    FileWriter structureWriter = null;
 
     try {
       allWriter = new FileWriter(new File(parent, EMPLOYEE_ALL_LDIF_FILE));
+      structureWriter = new FileWriter(new File(parent, "Employee_structure.ldif"));
 
       try {
         writer = new FileWriter(new File(parent, EMPLOYEE_LDIF_FILE));
@@ -123,6 +125,7 @@ public class LDIFWriter {
       try {
         writer = new FileWriter(new File(parent, EMPLOYEE_GROUP_LDIF_FILE));
         writeGroupsLDIF(writer, allWriter, VIRKAILIJA, userIDs);
+        writeGroupsStructureLDIF(structureWriter, VIRKAILIJA);
         writer.close();
       } finally {
         if (writer != null) {
@@ -142,11 +145,14 @@ public class LDIFWriter {
             writer = new FileWriter(new File(parent, EMPLOYEE_REGISTRY_FILENAME_PREFIX + group + LDIF_FILE_SUFFIX));
 
             if (NEUVOLAN_TYÖNTEKIJÄ.equals(group)) {
-              writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);              
+              writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
+              writeKokuCommunitiesStructureLDIF(structureWriter, HEALTHCAREREGISTRY, REGISTRIES);
             } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group)) {
               writeKokuCommunitiesLDIF(writer, allWriter, DAYCAREREGISTRY, REGISTRIES, users);
+              writeKokuCommunitiesStructureLDIF(structureWriter, DAYCAREREGISTRY, REGISTRIES);
             } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
               writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
+              writeKokuCommunitiesStructureLDIF(structureWriter, HEALTHCAREREGISTRY, REGISTRIES);
             }
 
             writer.close();
@@ -161,10 +167,13 @@ public class LDIFWriter {
 
             if (NEUVOLAN_TYÖNTEKIJÄ.equals(group)) {
               writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS, users);
+              writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS);
             } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group)) {
               writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS, users);
+              writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS);
             } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
               writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS, users);
+              writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS);
             }
 
             writer.close();
@@ -177,9 +186,14 @@ public class LDIFWriter {
       }
 
       allWriter.close();
+      structureWriter.close();
     } finally {
       if (allWriter != null) {
         allWriter.close();
+      }
+      
+      if (structureWriter != null) {
+        structureWriter.close();
       }
     }
     
@@ -198,9 +212,11 @@ public class LDIFWriter {
 
     FileWriter writer = null;
     FileWriter allWriter = null;
+    FileWriter structureWriter = null;
 
     try {
       allWriter = new FileWriter(new File(parent, EFFICA_ALL_LDIF_FILE));
+      structureWriter = new FileWriter(new File(parent, "Effica_customer_structure.ldif"));
 
       try {
         writer = new FileWriter(new File(parent, EFFICA_CUSTOMER_LDIF_FILE));
@@ -220,7 +236,10 @@ public class LDIFWriter {
             addedUserIDs.add(l[EFFICA_CHILD_UID]);
           }
 
-          String groupID = l[EFFICA_CHILD_UNIT] + ", " + l[EFFICA_CHILD_GROUP];
+          String groupID = l[EFFICA_CHILD_UNIT] + " " + l[EFFICA_CHILD_GROUP];
+          groupID = groupID.replaceAll(",", "");
+          groupID = groupID.replaceAll("\\+", "");
+          
           List<String> groupUIDs = childGroupToUIDs.get(groupID);
           if (groupUIDs == null) {
             groupUIDs = new ArrayList<String>();
@@ -259,6 +278,7 @@ public class LDIFWriter {
       try {
         writer = new FileWriter(new File(parent, EFFICA_CUSTOMER_GROUP_LDIF_FILE));
         writeGroupsLDIF(writer, allWriter, KUNTALAINEN, addedUserIDs);
+        writeGroupsStructureLDIF(structureWriter, KUNTALAINEN);
         writer.close();
       } finally {
         if (writer != null) {
@@ -267,12 +287,17 @@ public class LDIFWriter {
       }
       System.out.println("Effica Customer Group LDIF written");
 
-      writeChildGroupLDIFs(parent, allWriter, childGroupToUIDs);
+      writeChildGroupLDIFs(parent, allWriter, structureWriter, childGroupToUIDs);
 
       allWriter.close();
+      structureWriter.close();
     } finally {
       if (allWriter != null) {
         allWriter.close();
+      }
+      
+      if (structureWriter != null) {
+        structureWriter.close();
       }
     }
     System.out.println("Effica all LDIF written");
@@ -283,9 +308,12 @@ public class LDIFWriter {
     Map<String, List<String>> childGroupToUIDs = new HashMap<String, List<String>>();
     FileWriter writer = null;
     FileWriter allWriter = null;
+    FileWriter structureWriter = null;
 
     try {
       allWriter = new FileWriter(new File(parent, HELMI_ALL_LDIF_FILE));
+      structureWriter = new FileWriter(new File(parent, "Helmi_customer_structure.ldif"));
+      
       try {
         writer = new FileWriter(new File(parent, HELMI_CUSTOMER_LDIF_FILE));
 
@@ -310,7 +338,10 @@ public class LDIFWriter {
             addedUserIDs.add(childUID);
           }
 
-          String groupID = l[HELMI_CHILD_UNIT] + ", " + l[HELMI_CHILD_GROUP];
+          String groupID = l[HELMI_CHILD_UNIT] + " " + l[HELMI_CHILD_GROUP];
+          groupID = groupID.replaceAll(",", "");
+          groupID = groupID.replaceAll("\\+", "");
+          
           List<String> groupUIDs = childGroupToUIDs.get(groupID);
           if (groupUIDs == null) {
             groupUIDs = new ArrayList<String>();
@@ -356,6 +387,7 @@ public class LDIFWriter {
       try {
         writer = new FileWriter(new File(parent, HELMI_CUSTOMER_GROUP_LDIF_FILE));
         writeGroupsLDIF(writer, allWriter, KUNTALAINEN, addedUserIDs);
+        writeGroupsStructureLDIF(structureWriter, KUNTALAINEN);
         writer.close();
       } finally {
         if (writer != null) {
@@ -364,25 +396,31 @@ public class LDIFWriter {
       }
       System.out.println("Customer Group LDIF written");
 
-      writeChildGroupLDIFs(parent, allWriter, childGroupToUIDs);
+      writeChildGroupLDIFs(parent, allWriter, structureWriter, childGroupToUIDs);
 
       allWriter.close();
+      structureWriter.close();
     } finally {
       if (allWriter != null) {
         allWriter.close();
       }
+      
+      if (structureWriter != null) {
+        structureWriter.close();
+      }
     }
   }
 
-  private void writeChildGroupLDIFs(File parent, FileWriter allWriter, Map<String, List<String>> childGroupToUIDs) throws IOException,
-      Exception {
+  private void writeChildGroupLDIFs(File parent, FileWriter allWriter, FileWriter structureWriter,
+      Map<String, List<String>> childGroupToUIDs) throws IOException,    Exception {
     FileWriter writer = null;
     for (String groupName : childGroupToUIDs.keySet()) {
       List<String> groupUIDs = childGroupToUIDs.get(groupName);
 
       try {
         writer = new FileWriter(new File(parent, groupName + LDIF_FILE_SUFFIX));
-        writeGroupsLDIF(writer, allWriter, groupName, groupUIDs);        
+        writeCommunitiesGroupsLDIF(writer, allWriter, groupName, groupUIDs);   
+        writeCommunitiesGroupsStructureLDIF(structureWriter, groupName);
         writer.close();
       } finally {
         if (writer != null) {
@@ -411,29 +449,70 @@ public class LDIFWriter {
 
   private void writeKokuCommunitiesLDIF(FileWriter writer, String cn, String ou, List<String> userIDs) throws Exception {  
     writer.write("dn: cn=" + cn + ",ou=" + ou + ",ou=KokuCommunities,o=koku,dc=example,dc=org" + "\n");
-    writer.write("cn: " + cn + "\n");
-    writer.write("objectClass: groupOfNames" + "\n");
-    writer.write("objectClass: top" + "\n");
+    writer.write("changetype: modify\n");
+    writer.write("add: member\n");
     for (String userID : userIDs) {
       writer.write("member: cn=" + userID + ",ou=People,o=koku,dc=example,dc=org" + "\n");
     }
     writer.write("\n");
   }
+  
+  private void writeKokuCommunitiesStructureLDIF(FileWriter writer, String cn, String ou) throws Exception {  
+    writer.write("dn: cn=" + cn + ",ou=" + ou + ",ou=KokuCommunities,o=koku,dc=example,dc=org" + "\n");
+    writer.write("cn: " + cn + "\n");
+    writer.write("objectClass: groupOfNames" + "\n");
+    writer.write("objectClass: top" + "\n");
+    writer.write("member: " + "\n");
+    writer.write("\n");
+  }
 
+  private void writeCommunitiesGroupsLDIF(FileWriter writer, FileWriter allWriter, String listType, List<String> userIDs)
+      throws Exception {
+    writeCommunitiesGroupsLDIF(writer, listType, userIDs);
+    writeCommunitiesGroupsLDIF(allWriter, listType, userIDs);
+  }  
+  
+  private void writeCommunitiesGroupsLDIF(FileWriter writer, String listType, List<String> userIDs) throws Exception {
+    writer.write("dn: cn=" + listType + ",ou=Groups,ou=KokuCommunities,o=koku,dc=example,dc=org" + "\n");
+    writer.write("changetype: modify\n");
+    writer.write("add: member\n");
+    for (String userID : userIDs) {
+      writer.write("member: cn=" + userID + ",ou=People,o=koku,dc=example,dc=org" + "\n");
+    }
+    writer.write("\n");
+  }
+  
+  private void writeCommunitiesGroupsStructureLDIF(FileWriter writer, String listType) throws Exception {
+    writer.write("dn: cn=" + listType + ",ou=Groups,ou=KokuCommunities,o=koku,dc=example,dc=org" + "\n");
+    writer.write("cn: " + listType + "\n");
+    writer.write("objectClass: groupOfNames" + "\n");
+    writer.write("objectClass: top" + "\n");
+    writer.write("member: " + "\n");
+    writer.write("\n");
+  }
+  
   private void writeGroupsLDIF(FileWriter writer, FileWriter allWriter, String listType, List<String> userIDs)
       throws Exception {
     writeGroupsLDIF(writer, listType, userIDs);
     writeGroupsLDIF(allWriter, listType, userIDs);
   }  
-  
+  // cn=Oravat,ou=Groups,ou=KokuCommunities,o=koku,dc=example,dc=org
   private void writeGroupsLDIF(FileWriter writer, String listType, List<String> userIDs) throws Exception {
+    writer.write("dn: cn=" + listType + ",ou=Groups,o=koku,dc=example,dc=org" + "\n");
+    writer.write("changetype: modify\n");
+    writer.write("add: member\n");
+    for (String userID : userIDs) {
+      writer.write("member: cn=" + userID + ",ou=People,o=koku,dc=example,dc=org" + "\n");
+    }
+    writer.write("\n");
+  }
+  
+  private void writeGroupsStructureLDIF(FileWriter writer, String listType) throws Exception {
     writer.write("dn: cn=" + listType + ",ou=Groups,o=koku,dc=example,dc=org" + "\n");
     writer.write("cn: " + listType + "\n");
     writer.write("objectClass: groupOfNames" + "\n");
     writer.write("objectClass: top" + "\n");
-    for (String userID : userIDs) {
-      writer.write("member: cn=" + userID + ",ou=People,o=koku,dc=example,dc=org" + "\n");
-    }
+    writer.write("member: " + "\n");
     writer.write("\n");
   }
   
