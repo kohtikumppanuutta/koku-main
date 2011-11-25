@@ -38,7 +38,9 @@ public class WSCaller {
   private static final String CUSTOMER_SERVICE_USER_ID = "marko";
   private static final String CUSTOMER_SERVICE_PASSWORD = "marko";
   private static final String CUSTOMER_ENDPOINT = "http://localhost:8180/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
+  //private static final String CUSTOMER_ENDPOINT = "http://localhost:11000/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
   private static final String KAHVA_ENDPOINT = "http://localhost:8180/kahvaservice-mock-ear-0.0.1-SNAPSHOT-kahvaservice-mock-0.0.3-SNAPSHOT/KahvaServiceEndpointBean";
+  //private static final String KAHVA_ENDPOINT = "http://localhost:10000/tampere-services/ldapService";
 
   private LdapService ldapService;
   private CustomerServicePortType customerService;

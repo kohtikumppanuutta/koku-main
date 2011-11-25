@@ -13,6 +13,7 @@ public class Utils {
 
       for (String id : ids) {
         writer.write(id + ", ");
+        //writer.write(id + "\n");
       }
 
       writer.close();

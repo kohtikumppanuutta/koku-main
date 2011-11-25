@@ -33,6 +33,7 @@ public class PICWriter {
       }
     }
 
+    System.out.println("Count: " + userPICs.size());
     Utils.writeIDsToFile(parent, userPICs, EMPLOYEE_PI_CS_FILENAME);
     if (!failedTOAddIDs.isEmpty()) {
       Utils.writeIDsToFile(parent, failedTOAddIDs, NOT_FOUND_EMPLOYEE_IDS_FILENAME);
@@ -46,6 +47,7 @@ public class PICWriter {
       addNotNull(customerIDs, l[4]);
       addNotNull(customerIDs, l[16]);
     }
+    System.out.println("Count: " + customerIDs.size());
     Utils.writeIDsToFile(parent, customerIDs, EFFICA_CUSTOMER_PI_CS_FILENAME);
   }
     
@@ -58,12 +60,17 @@ public class PICWriter {
       addNotNull(customerIDs, l[HELMI_PM_1_PIC]);
       addNotNull(customerIDs, l[HELMI_PM_2_PIC]);
     }
+    System.out.println("Count: " + customerIDs.size());
     Utils.writeIDsToFile(parent, customerIDs, HELMI_CUSTOMER_PI_CS_FILENAME);
   }
   
   private void addNotNull(Collection<String> col, String toAdd) {
-    if (toAdd != null && toAdd.length() > 0 && !col.contains(toAdd)) {
-      col.add(toAdd.trim());
-    }
+    if (toAdd != null && toAdd.length() > 0 && !col.contains("'"+toAdd.trim()+"'")) {           
+      col.add("'"+toAdd.trim()+"'");
+    } 
+    
+//    if (toAdd != null && toAdd.length() > 0 && !col.contains(toAdd.trim())) {           
+//      col.add(toAdd.trim());
+//    } 
   }  
 }
