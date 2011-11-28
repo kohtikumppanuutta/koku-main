@@ -13,6 +13,9 @@ import fi.arcusys.tampere.hrsoa.entity.User;
 
 public class LDIFWriter {
 
+  private static final String HELMI_CUSTOMER_STRUCTURE_FILENAME = "Helmi_customer_structure.ldif";
+  private static final String EFFICA_CUSTOMER_STRUCTURE_FILENAME = "Effica_customer_structure.ldif";
+  private static final String EMPLOYEE_STRUCTURE_FILENAME = "Employee_structure.ldif";
   private static final String REGISTRIES = "Registries";
   private static final String ORG_UNITS = "OrgUnits";
   private static final String KK_SERVICEAREA_SCHOOL_HEALTH = "kk.servicearea.schoolHealth";
@@ -29,6 +32,7 @@ public class LDIFWriter {
   
   private static final int EMPLOYEE_ID = 0;
   private static final int EMPLOYEE_GROUP = 1;
+  
   private static final int HELMI_CHILD_GROUP = 19;
   private static final int HELMI_CHILD_UNIT = 18;
   private static final int HELMI_PMS = 15;
@@ -62,6 +66,7 @@ public class LDIFWriter {
   private static final String HELMI_ALL_LDIF_FILE = "Helmi_All.ldif";
   private static final String HELMI_CUSTOMER_GROUP_LDIF_FILE = "HelmiCustomerGroup.ldif";
   private static final String HELMI_CUSTOMER_LDIF_FILE = "HelmiCustomer.ldif";
+  
   private static final String EMPLOYEE_GROUP_LDIF_FILE = "EmployeeGroup.ldif";
   private static final String EMPLOYEE_LDIF_FILE = "Employee.ldif";
   private static final String EMPLOYEE_ALL_LDIF_FILE = "Employee_all.ldif";
@@ -70,14 +75,14 @@ public class LDIFWriter {
   public void writeEmployeeLDIF(CSVReader reader, WSCaller caller, File parent) throws Exception {
     List<String> userIDs = new ArrayList<String>();
     Map<String, List<String>> groupToUsers = new HashMap<String, List<String>>();
-    List<String> failedTOAddIDs = new ArrayList<String>();
+    List<String> notFoundIDs = new ArrayList<String>();
     FileWriter writer = null;
     FileWriter allWriter = null;
     FileWriter structureWriter = null;
 
     try {
       allWriter = new FileWriter(new File(parent, EMPLOYEE_ALL_LDIF_FILE));
-      structureWriter = new FileWriter(new File(parent, "Employee_structure.ldif"));
+      structureWriter = new FileWriter(new File(parent, EMPLOYEE_STRUCTURE_FILENAME));
 
       try {
         writer = new FileWriter(new File(parent, EMPLOYEE_LDIF_FILE));
@@ -92,7 +97,7 @@ public class LDIFWriter {
 
           User user = caller.getUserById(l[EMPLOYEE_ID]);
           if (user == null) {
-            failedTOAddIDs.add(l[EMPLOYEE_ID]);
+            notFoundIDs.add(l[EMPLOYEE_ID]);
           } else {
             // try to avoid duplicates
             if (!userIDs.contains(user.getUserId())) {
@@ -201,8 +206,8 @@ public class LDIFWriter {
     System.out.println("Employee Registry LDIFs written");
     System.out.println("Employee OrgUnit LDIFs written");
       
-    if (failedTOAddIDs.size() > 0) {
-      Utils.writeIDsToFile(parent, failedTOAddIDs, NOT_FOUND_EMPLOYEE_IDS_TXT);
+    if (notFoundIDs.size() > 0) {
+      Utils.writeIDsToFile(parent, notFoundIDs, NOT_FOUND_EMPLOYEE_IDS_TXT);
     }
   }
 
@@ -216,7 +221,7 @@ public class LDIFWriter {
 
     try {
       allWriter = new FileWriter(new File(parent, EFFICA_ALL_LDIF_FILE));
-      structureWriter = new FileWriter(new File(parent, "Effica_customer_structure.ldif"));
+      structureWriter = new FileWriter(new File(parent, EFFICA_CUSTOMER_STRUCTURE_FILENAME));
 
       try {
         writer = new FileWriter(new File(parent, EFFICA_CUSTOMER_LDIF_FILE));
@@ -312,7 +317,7 @@ public class LDIFWriter {
 
     try {
       allWriter = new FileWriter(new File(parent, HELMI_ALL_LDIF_FILE));
-      structureWriter = new FileWriter(new File(parent, "Helmi_customer_structure.ldif"));
+      structureWriter = new FileWriter(new File(parent, HELMI_CUSTOMER_STRUCTURE_FILENAME));
       
       try {
         writer = new FileWriter(new File(parent, HELMI_CUSTOMER_LDIF_FILE));

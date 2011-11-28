@@ -22,8 +22,12 @@ public class CustomerCreator {
   private static final int HELMI_PMS = 15;
   private static final int HELMI_CHILD_BIRTHDATE = 4;
   private static final int HELMI_CHILD_UID_POSTFIX = 3;
-  private static final String TURVAKIELTO = "TURVAKIELTO";
   private static final int HELMI_ADDRESS = 12;
+  private static final String TURVAKIELTO = "TURVAKIELTO";  
+  
+  private static final String HELMI_ADDED_COMMUNITY_IDS_TXT = "helmi_added_communityIDs.txt";
+  private static final String HELMI_ADDED_CUSTOMER_IDS_TXT = "helmi_addedCustomerIDs.txt";
+  
   private static final int EFFICA_PM_EMAIL_2 = 23;
   private static final int EFFICA_PM_EMAIL = 22;
   private static final int EFFICA_PM_PHONE_2 = 25;
@@ -45,13 +49,12 @@ public class CustomerCreator {
   private static final int EFFICA_CHILD_LASTNAME = 6;
   private static final int EFFICA_CHILD_BIRTH_DATE = 5;
   private static final int EFFICA_CHILD_PIC = 4;
-  private static final String COMMUNITY_SUFFIX = "_huollettavat";
+  
   private static final String EFFICA_ADDED_COMMUNITY_IDS_TXT = "effica_added_communityIDs.txt";
   private static final String EFFICA_ADDED_CUSTOMER_IDS_TXT = "effica_addedCustomerIDs.txt";
   
-  private static final String HELMI_ADDED_COMMUNITY_IDS_TXT = "helmi_added_communityIDs.txt";
-  private static final String HELMI_ADDED_CUSTOMER_IDS_TXT = "helmi_addedCustomerIDs.txt";
-
+  private static final String COMMUNITY_SUFFIX = "_huollettavat";
+  
   public void createEfficaCustomers(CSVReader reader, WSCaller caller, File parent) throws Exception {
 
     List<String> customerIDs = new ArrayList<String>();
@@ -83,17 +86,8 @@ public class CustomerCreator {
               l[EFFICA_PM_ADDRESS], l[EFFICA_PM_POST_OFFICE], l[EFFICA_PM_POST_CODE], l[EFFICA_PM_PHONE],
               l[EFFICA_PM_PHONE_2], l[EFFICA_PM_EMAIL], l[EFFICA_PM_EMAIL_2]));
         }
-        // TODO Puolisoa ei lisätä ainakaan vielä
 
-        // create community if it does not exist
-        String communityID = picToCommunity.get(l[EFFICA_PM_PIC]);
-        if (communityID == null) {
-          communityID = caller.createCommunity(Utils.getFirstName(l[EFFICA_PM_FIRSTNAMES]) + COMMUNITY_SUFFIX,
-              l[EFFICA_PM_PIC]);
-          picToCommunity.put(l[EFFICA_PM_PIC], communityID);
-        }
-        // add child to parent's community
-        caller.updateCommunity(communityID, l[EFFICA_CHILD_PIC]);
+        addChildToCommunity(caller, picToCommunity, l[EFFICA_PM_PIC], l[EFFICA_PM_FIRSTNAMES], l[EFFICA_CHILD_PIC]);
       } catch (Exception e) {
         System.err.println("Data: ");
         for (int i = 0; i < l.length; i++) {
@@ -153,16 +147,7 @@ public class CustomerCreator {
               phones[0], emails[0], null));
         }
 
-        // create 'päämies' community if it does not exist
-        String communityID = picToCommunity.get(l[HELMI_PM_1_PIC]);
-        if (communityID == null) {
-          // Still not copy paste mistake
-          communityID = caller.createCommunity(
-              Utils.getFirstName(Utils.getSecondName(guardians[0])) + COMMUNITY_SUFFIX, l[HELMI_PM_1_PIC]);
-          picToCommunity.put(l[HELMI_PM_1_PIC], communityID);
-        }
-        // add child to parent's community
-        caller.updateCommunity(communityID, childPIC);
+        addChildToCommunity(caller, picToCommunity, l[HELMI_PM_1_PIC], Utils.getSecondName(guardians[0]), childPIC);
 
         if (guardians[1] != null && guardians[1].length() > 0 && l[HELMI_PM_2_PIC] != null
             && l[HELMI_PM_2_PIC].length() > 0) {
@@ -180,16 +165,7 @@ public class CustomerCreator {
                 phones[1], emails[1], null));
           }
 
-          // create community if it does not exist
-          communityID = picToCommunity.get(l[HELMI_PM_2_PIC]);
-          if (communityID == null) {
-            // Still not copy paste mistake
-            communityID = caller.createCommunity(Utils.getFirstName(Utils.getSecondName(guardians[1]))
-                + COMMUNITY_SUFFIX, l[HELMI_PM_2_PIC]);
-            picToCommunity.put(l[HELMI_PM_2_PIC], communityID);
-          }
-          // add child to parent's community
-          caller.updateCommunity(communityID, childPIC);
+          addChildToCommunity(caller, picToCommunity, l[HELMI_PM_2_PIC], Utils.getSecondName(guardians[1]), childPIC);
         }
       } catch (Exception e) {
         System.err.println("Data: ");
@@ -207,7 +183,21 @@ public class CustomerCreator {
     Utils.writeIDsToFile(parent, customerIDs, HELMI_ADDED_CUSTOMER_IDS_TXT);
     Utils.writeIDsToFile(parent, picToCommunity.values(), HELMI_ADDED_COMMUNITY_IDS_TXT);
   }
-  
+
+  private void addChildToCommunity(WSCaller caller, Map<String, String> picToCommunity, String pic, String guardianFirstNames,
+      String childPIC) throws Exception {
+    
+    // create 'päämies' community if it does not exist
+    String communityID = picToCommunity.get(pic);
+    if (communityID == null) {
+      communityID = caller.createCommunity(
+          Utils.getFirstName(guardianFirstNames) + COMMUNITY_SUFFIX, pic);
+      picToCommunity.put(pic, communityID);
+    }
+    // add child to parent's community
+    caller.updateCommunity(communityID, childPIC);
+  }
+    
   private String removeTurvaKielto(String text) {
     if (text != null && TURVAKIELTO.equals(text)) {
       return "";
