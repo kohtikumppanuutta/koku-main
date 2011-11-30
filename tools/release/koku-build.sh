@@ -6,35 +6,56 @@
 #
 
 modules='processes services ui'
+vcs_dir_type=tag
 svn_repo_base=https://svn.mermit.fi
 
 function usage() {
-  echo "usage: koku-build.sh -r release_version -c {tag_release | build_packages}"
+  echo "usage: koku-build.sh -r release_version -c {mark_release | build_packages} [-e]"
   exit 1
 }
 
-function fail_if_tag_exists() {
+function fail_if_vcs_dir_exists() {
   local mods="$1"
+  local vcs_type="$2"
+  local vcs_dir="$3"
   for m in $mods; do
-    mod_tags=$(svn ls $svn_repo_base/kohtikumppanuutta/$m/tags)
+    mod_tags=$(svn ls $svn_repo_base/kohtikumppanuutta/$m/$vcs_dir)
     rv=$?
-    [ $rv -ne 0 ] && echo "failed to get tags for $m, exiting" && exit 1
+    [ $rv -ne 0 ] && echo "failed to get $vcs_dir for $m, exiting" && exit 1
     echo "$mod_tags" | grep -q "^$koku_rel_v/$"
     rv=$?
-    [ $rv -eq 0 ] && echo "tag $koku_rel_v already exists for module '$m', exiting" && exit 1
+    [ $rv -eq 0 ] && echo "$vcs_type $koku_rel_v already exists for module '$m', exiting" && exit 1
   done
 }
 
-function tag_release() {
+function get_vcs_dir_by_type() {
+  case "$1" in
+  tag)
+	res="tags"
+	;;
+  branch)
+	res="branches"
+	;;
+  *) echo "unknown vcs dir type"
+	exit 1
+	;;
+  esac
+}
+
+function mark_release() {
   local mods="$1"
+  local vcs_type="$2"
+  local vcs_dir="$3"
   for m in $mods; do
     svn copy $svn_repo_base/kohtikumppanuutta/$m/trunk \
-           $svn_repo_base/kohtikumppanuutta/$m/tags/$koku_rel_v \
-        -m "KoKu / $m: $koku_rel_v tag."
+           $svn_repo_base/kohtikumppanuutta/$m/$vcs_dir/$koku_rel_v \
+        -m "KoKu / $m: $koku_rel_v $vcs_type."
   done
 }
 
 function build_packages() {
+  local vcs_dir="$1"
+
   # create release dirs
   mkdir release-$koku_rel_v
   cd "release-$koku_rel_v"
@@ -44,7 +65,7 @@ function build_packages() {
   # do a full, fresh checkout
   for m in $modules; do
     cd $m
-    svn co $svn_repo_base/kohtikumppanuutta/$m/tags/$koku_rel_v
+    svn co $svn_repo_base/kohtikumppanuutta/$m/$vcs_dir/$koku_rel_v
     cd ..
   done
 
@@ -93,20 +114,24 @@ if [ "x" = "x$koku_rel_v" -o "x" = "x$build_command" ]; then
   usage
 fi
 
+# set runtime variables
 if [ "x" = "x$is_ext_user" ]; then
   svn_repo_base=$svn_repo_base/projects
 else
   svn_repo_base=$svn_repo_base/ext
 fi
 
+get_vcs_dir_by_type $vcs_dir_type
+vcs_dir=$res
+
 case $build_command in
-  tag_release)
-	fail_if_tag_exists "$modules"
-	echo "tag $koku_rel_v doesn't exist. tagging"
-	tag_release "$modules"
+  mark_release)
+	fail_if_vcs_dir_exists "$modules" $vcs_dir_type $vcs_dir
+	echo "$vcs_dir_type $koku_rel_v doesn't exist. creating ${vcs_dir_type}"
+	mark_release "$modules" $vcs_dir_type $vcs_dir
 	;;
   build_packages)
-	build_packages
+	build_packages $vcs_dir
 	;;
   *) echo "unknown build command"
 	exit 1
