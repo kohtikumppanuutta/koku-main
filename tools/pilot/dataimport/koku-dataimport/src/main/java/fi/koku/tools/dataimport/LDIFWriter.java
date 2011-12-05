@@ -28,6 +28,7 @@ public class LDIFWriter {
   private static final String EMPLOYEE_REGISTRY_FILENAME_PREFIX = "employeeRegistry_";
   private static final String KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ = "Kouluterveydenhuollon työntekijä";
   private static final String PÄIVÄKODIN_TYÖNTEKIJÄ = "Päiväkodin työntekijä";
+  private static final String PÄIVÄKODIN_JOHTAJAT = "Päiväkodin johtajat";
   private static final String NEUVOLAN_TYÖNTEKIJÄ = "Neuvolan työntekijä";
   
   private static final int EMPLOYEE_ID = 0;
@@ -142,7 +143,7 @@ public class LDIFWriter {
       for (String group : groupToUsers.keySet()) {
 
         if (NEUVOLAN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group)
-            || KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
+            || KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group)) {
 
           List<String> users = groupToUsers.get(group);
 
@@ -152,7 +153,7 @@ public class LDIFWriter {
             if (NEUVOLAN_TYÖNTEKIJÄ.equals(group)) {
               writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
               writeKokuCommunitiesStructureLDIF(structureWriter, HEALTHCAREREGISTRY, REGISTRIES);
-            } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group)) {
+            } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group) ) {
               writeKokuCommunitiesLDIF(writer, allWriter, DAYCAREREGISTRY, REGISTRIES, users);
               writeKokuCommunitiesStructureLDIF(structureWriter, DAYCAREREGISTRY, REGISTRIES);
             } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
@@ -173,7 +174,7 @@ public class LDIFWriter {
             if (NEUVOLAN_TYÖNTEKIJÄ.equals(group)) {
               writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS, users);
               writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS);
-            } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group)) {
+            } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group) ) {
               writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS, users);
               writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS);
             } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
