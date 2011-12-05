@@ -80,9 +80,9 @@
     </dependency>
 
     <dependency>
-      <groupId>kohti-kumppanuutta</groupId>
-      <artifactId>kahvaservice-api</artifactId>
-      <version>0.0.4-SNAPSHOT</version>
+        <groupId>kohti-kumppanuutta</groupId>
+        <artifactId>kahvaservice-api</artifactId>
+        <version>0.0.4-20111116.142057-1</version>
     </dependency>
 
     <dependency>
