@@ -100,7 +100,7 @@ public class DataImporter {
       } else if (returnvalue == EFFICA_CUSTOMER_PIC) {
         CSVReader reader = new CSVReader(new FileReader(file));
         try {
-          new PICWriter().writeEfficaCustomerPICFile(reader, caller, file.getParentFile());
+          new PICWriter().writeEfficaCustomerPICFile(reader, file.getParentFile());
         } finally {
           reader.close();
         }     
@@ -109,7 +109,7 @@ public class DataImporter {
       } else if (returnvalue == HELMI_CUSTOMER_PIC) {
         CSVReader reader = new CSVReader(new FileReader(file));
         try {
-          new PICWriter().writeHelmiCustomerPICFile(reader, caller, file.getParentFile());
+          new PICWriter().writeHelmiCustomerPICFile(reader, file.getParentFile());
         } finally {
           reader.close();
         }
