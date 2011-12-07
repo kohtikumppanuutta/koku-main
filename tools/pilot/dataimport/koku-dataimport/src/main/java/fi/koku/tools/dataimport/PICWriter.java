@@ -16,7 +16,7 @@ public class PICWriter {
   private static final String EMPLOYEE_PI_CS_FILENAME = "EmployeePICs.txt";
   private static final int HELMI_PM_2_PIC = 17;
   private static final int HELMI_PM_1_PIC = 16;
-  private static final int EMPLOYEE_PIC = 0;
+  private static final int EMPLOYEE_ID = 0;
 
   public void writeEmployeePICFile(CSVReader reader, WSCaller caller, File parent) throws Exception {
     List<String> userPICs = new ArrayList<String>();
@@ -25,9 +25,9 @@ public class PICWriter {
     String[] l;
     while ((l = reader.readNext()) != null) {
 
-      User user = caller.getUserById(l[EMPLOYEE_PIC]);
+      User user = caller.getUserById(l[EMPLOYEE_ID]);
       if (user == null) {
-        failedTOAddIDs.add(l[EMPLOYEE_PIC]);
+        failedTOAddIDs.add(l[EMPLOYEE_ID]);
       } else {              
         addNotNull(userPICs,user.getSsn());    
       }
@@ -40,7 +40,7 @@ public class PICWriter {
     }
   }
   
-  public void writeEfficaCustomerPICFile(CSVReader reader, WSCaller caller, File parent) throws Exception {
+  public void writeEfficaCustomerPICFile(CSVReader reader, File parent) throws Exception {
     List<String> customerIDs = new ArrayList<String>();
     String[] l;
     while ((l = reader.readNext()) != null) {      
@@ -51,7 +51,7 @@ public class PICWriter {
     Utils.writeIDsToFile(parent, customerIDs, EFFICA_CUSTOMER_PI_CS_FILENAME);
   }
     
-  public void writeHelmiCustomerPICFile(CSVReader reader, WSCaller caller, File parent) throws Exception {
+  public void writeHelmiCustomerPICFile(CSVReader reader, File parent) throws Exception {
     List<String> customerIDs = new ArrayList<String>();
     String[] l;
     while ((l = reader.readNext()) != null) {
