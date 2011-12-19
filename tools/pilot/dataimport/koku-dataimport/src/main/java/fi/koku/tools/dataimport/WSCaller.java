@@ -9,9 +9,12 @@ import fi.arcusys.tampere.hrsoa.entity.User;
 import fi.arcusys.tampere.hrsoa.ws.ldap.LdapService;
 import fi.koku.calendar.CalendarUtil;
 import fi.koku.services.common.kahva.LdapServiceFactory;
+import fi.koku.services.entity.community.v1.CommunitiesType;
+import fi.koku.services.entity.community.v1.CommunityQueryCriteriaType;
 import fi.koku.services.entity.community.v1.CommunityServiceFactory;
 import fi.koku.services.entity.community.v1.CommunityServicePortType;
 import fi.koku.services.entity.community.v1.CommunityType;
+import fi.koku.services.entity.community.v1.MemberPicsType;
 import fi.koku.services.entity.community.v1.MemberType;
 import fi.koku.services.entity.community.v1.MembersType;
 import fi.koku.services.entity.customer.v1.AddressType;
@@ -69,7 +72,6 @@ public class WSCaller {
       String postinumero, String puhelinnumero, String matkapuhelin, String email, String email2) throws Exception {
 
     CustomerType customer = new CustomerType();
-    // TODO set real data
     customer.setStatus(ELOSSA);
     customer.setStatusDate(CalendarUtil.getXmlDate(new Date()));
     customer.setHenkiloTunnus(pic);
@@ -78,7 +80,11 @@ public class WSCaller {
     customer.setEtuNimi(firstname);
     customer.setEtunimetNimi(firstnames);
     // TODO set real data
-    customer.setKansalaisuusKoodi("FI");
+    if (kansalaisuuskoodi != null && kansalaisuuskoodi.length() < 4) {
+      customer.setKansalaisuusKoodi(kansalaisuuskoodi);
+    } else {
+      customer.setKansalaisuusKoodi("FI");
+    }
     // TODO these are not codes, just text, FIX?
     if (kuntakoodi.length() > 10) {
       kuntakoodi = kuntakoodi.substring(0, 10);
@@ -132,6 +138,27 @@ public class WSCaller {
 
     return getCustomerService().opAddCustomer(customer, getCustomerAuditHeader());
     // getCustomerService().opGetCustomer("444444-4444",
+  }
+
+  public CommunityType getCommunity(String guardianPic) throws Exception {
+    MemberPicsType pics = new MemberPicsType();
+    pics.getMemberPic().add(guardianPic);
+
+    CommunityQueryCriteriaType criteria = new CommunityQueryCriteriaType();
+    criteria.setMemberPics(pics);
+    criteria.setCommunityType(GUARDIAN_COMMUNITY);
+
+    CommunitiesType comms = getCommunityService().opQueryCommunities(criteria, getCommunityAuditHeader());
+
+    if (comms.getCommunity().size() > 1) {
+      throw new Exception("the guardian with pic:" + guardianPic + " has too many communities");
+    }
+
+    if (comms.getCommunity().isEmpty()) {
+      return null;
+    }
+
+    return comms.getCommunity().get(0);
   }
 
   public String createCommunity(String communityName, String guardianPic) throws Exception {
