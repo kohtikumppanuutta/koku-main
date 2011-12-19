@@ -3,7 +3,9 @@ package fi.koku.tools.dataimport;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -44,6 +46,10 @@ public class LDIFWriter {
   private static final String EMPLOYEE_LDIF_FILE = "Employee.ldif";
   private static final String EMPLOYEE_ALL_LDIF_FILE = "Employee_all.ldif";
   private static final String NOT_FOUND_EMPLOYEE_IDS_TXT = "NotFoundEmployeeIDS.txt";
+  
+  private Map<String, String> userIDtoPIC = new HashMap<String, String>();
+  private int userIDCounter = 0;
+  private SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
 
   public void writeEmployeeLDIF(CSVReader reader, WSCaller caller, File parent) throws Exception {
     Collection<String> userIDs = new LinkedHashSet<String>();
@@ -185,7 +191,7 @@ public class LDIFWriter {
   }
 
   public void writeEfficaCustomerLDIF(CSVReader reader, File parent) throws Exception {
-    Collection<String> addedUserIDs = new LinkedHashSet<String>();
+    Collection<String> addedUserPICSs = new LinkedHashSet<String>();
     Map<String, Collection<String>> childGroupToUIDs = new HashMap<String, Collection<String>>();
 
     FileWriter writer = null;
@@ -208,32 +214,31 @@ public class LDIFWriter {
           }
 
           // lapsi
-          if (!addedUserIDs.contains(l[Columns.EFFICA_CHILD_PIC])) {
-            writePersonLDIF(writer, allWriter, l[Columns.EFFICA_CHILD_PIC],
-                Utils.getFirstName(l[Columns.EFFICA_CHILD_FIRSTNAMES]), l[Columns.EFFICA_CHILD_LASTNAME],
-                l[Columns.EFFICA_CHILD_PHONE], null, l[Columns.EFFICA_CHILD_PIC]);
-            addedUserIDs.add(l[Columns.EFFICA_CHILD_PIC]);
+          if (!addedUserPICSs.contains(l[Columns.EFFICA_CHILD_PIC])) {
+            writePersonLDIF(writer, allWriter, Utils.getFirstName(l[Columns.EFFICA_CHILD_FIRSTNAMES]),
+                l[Columns.EFFICA_CHILD_LASTNAME], l[Columns.EFFICA_CHILD_PHONE], null, l[Columns.EFFICA_CHILD_PIC]);
+            addedUserPICSs.add(l[Columns.EFFICA_CHILD_PIC]);
           }
 
           addChildToGroup(childGroupToUIDs, l[Columns.EFFICA_CHILD_UNIT], l[Columns.EFFICA_CHILD_GROUP],
               l[Columns.EFFICA_CHILD_PIC]);
-          
+
           // päähenkilö
-          if (!addedUserIDs.contains(l[Columns.EFFICA_PM_PIC])) {
-            writePersonLDIF(writer, allWriter, l[Columns.EFFICA_PM_PIC],
-                Utils.getFirstName(l[Columns.EFFICA_PM_FIRSTNAMES]), l[Columns.EFFICA_PM_LASTNAME],
+          if (!addedUserPICSs.contains(l[Columns.EFFICA_PM_PIC])) {
+            writePersonLDIF(writer, allWriter, Utils.getFirstName(l[Columns.EFFICA_PM_FIRSTNAMES]),
+                l[Columns.EFFICA_PM_LASTNAME],
                 getPreferredPhone(l[Columns.EFFICA_PM_PHONE_2], l[Columns.EFFICA_PM_PHONE]),
                 l[Columns.EFFICA_PM_EMAIL], l[Columns.EFFICA_PM_PIC]);
-            addedUserIDs.add(l[Columns.EFFICA_PM_PIC]);
+            addedUserPICSs.add(l[Columns.EFFICA_PM_PIC]);
           }
 
           // puoliso
-          if (!addedUserIDs.contains(l[Columns.EFFICA_PM_2_PIC])) {
-            writePersonLDIF(writer, allWriter, l[Columns.EFFICA_PM_2_PIC],
-                Utils.getFirstName(l[Columns.EFFICA_PM_2_FIRSTNAMES]), l[Columns.EFFICA_PM_2_LASTNAME],
-                l[Columns.EFFICA_PM_2_PHONE], l[Columns.EFFICA_PM_2_EMAIL], l[Columns.EFFICA_PM_2_PIC]);
-            addedUserIDs.add(l[Columns.EFFICA_PM_2_PIC]);
-          }               
+          if (!addedUserPICSs.contains(l[Columns.EFFICA_PM_2_PIC])) {
+            writePersonLDIF(writer, allWriter, Utils.getFirstName(l[Columns.EFFICA_PM_2_FIRSTNAMES]),
+                l[Columns.EFFICA_PM_2_LASTNAME], l[Columns.EFFICA_PM_2_PHONE], l[Columns.EFFICA_PM_2_EMAIL],
+                l[Columns.EFFICA_PM_2_PIC]);
+            addedUserPICSs.add(l[Columns.EFFICA_PM_2_PIC]);
+          }
         }
         writer.close();
       } finally {
@@ -245,7 +250,7 @@ public class LDIFWriter {
 
       try {
         writer = new FileWriter(new File(parent, EFFICA_CUSTOMER_GROUP_LDIF_FILE));
-        writeGroupsLDIF(writer, allWriter, KUNTALAINEN, addedUserIDs);
+        writeGroupsLDIFWithPics(writer, allWriter, KUNTALAINEN, addedUserPICSs);
         writeGroupsStructureLDIF(structureWriter, KUNTALAINEN);
         writer.close();
       } finally {
@@ -272,7 +277,7 @@ public class LDIFWriter {
   }
 
   public void writeHelmiCustomerLDIF(CSVReader reader, File parent) throws Exception {
-    Collection<String> addedUserIDs = new LinkedHashSet<String>();
+    Collection<String> addedUserPICs = new LinkedHashSet<String>();
     Map<String, Collection<String>> childGroupToUIDs = new HashMap<String, Collection<String>>();
     FileWriter writer = null;
     FileWriter allWriter = null;
@@ -300,35 +305,35 @@ public class LDIFWriter {
           String childPIC = Utils.createUID(l[Columns.HELMI_CHILD_UID_POSTFIX], l[Columns.HELMI_CHILD_BIRTHDATE]);
 
           // lapsi
-          if (!addedUserIDs.contains(childPIC)) {
-            writePersonLDIF(writer, allWriter, childPIC, Utils.getFirstName(l[Columns.HELMI_CHILD_FIRSTNAMES]),
+          if (!addedUserPICs.contains(childPIC)) {
+            writePersonLDIF(writer, allWriter, Utils.getFirstName(l[Columns.HELMI_CHILD_FIRSTNAMES]),
                 l[Columns.HELMI_CHILD_LASTNAME], null, null, childPIC);
-            addedUserIDs.add(childPIC);
+            addedUserPICs.add(childPIC);
           }
 
-          addChildToGroup(childGroupToUIDs, l[Columns.HELMI_CHILD_UNIT], l[Columns.HELMI_CHILD_GROUP], childPIC);        
+          addChildToGroup(childGroupToUIDs, l[Columns.HELMI_CHILD_UNIT], l[Columns.HELMI_CHILD_GROUP], childPIC);
 
           // päähenkilö
-          if (!addedUserIDs.contains(l[Columns.HELMI_PM_1_PIC])) {
+          if (!addedUserPICs.contains(l[Columns.HELMI_PM_1_PIC])) {
             // this is not a copy paste mistake, the Helmi data has
             // the last name first
             String lastName = Utils.getFirstName(guardians[0]);
             String firstNames = Utils.getSecondName(guardians[0]);
-            writePersonLDIF(writer, allWriter, l[Columns.HELMI_PM_1_PIC], Utils.getFirstName(firstNames), lastName,
-                phones[0], emails[0], l[Columns.HELMI_PM_1_PIC]);
-            addedUserIDs.add(l[Columns.HELMI_PM_1_PIC]);
+            writePersonLDIF(writer, allWriter, Utils.getFirstName(firstNames), lastName, phones[0], emails[0],
+                l[Columns.HELMI_PM_1_PIC]);
+            addedUserPICs.add(l[Columns.HELMI_PM_1_PIC]);
           }
 
           // toinen huoltaja
           if (guardians[1] != null && guardians[1].length() > 0 && l[Columns.HELMI_PM_2_PIC] != null
-              && l[Columns.HELMI_PM_2_PIC].length() > 0 && !addedUserIDs.contains(l[Columns.HELMI_PM_2_PIC])) {
+              && l[Columns.HELMI_PM_2_PIC].length() > 0 && !addedUserPICs.contains(l[Columns.HELMI_PM_2_PIC])) {
             // this is not a copy paste mistake, the Helmi data has
             // the last name first
             String lastName = Utils.getFirstName(guardians[1]);
             String firstNames = Utils.getSecondName(guardians[1]);
-            writePersonLDIF(writer, allWriter, l[Columns.HELMI_PM_2_PIC], Utils.getFirstName(firstNames), lastName,
-                phones[1], emails[1], l[Columns.HELMI_PM_2_PIC]);
-            addedUserIDs.add(l[Columns.HELMI_PM_2_PIC]);
+            writePersonLDIF(writer, allWriter, Utils.getFirstName(firstNames), lastName, phones[1], emails[1],
+                l[Columns.HELMI_PM_2_PIC]);
+            addedUserPICs.add(l[Columns.HELMI_PM_2_PIC]);
           }
         }
         writer.close();
@@ -341,7 +346,7 @@ public class LDIFWriter {
 
       try {
         writer = new FileWriter(new File(parent, HELMI_CUSTOMER_GROUP_LDIF_FILE));
-        writeGroupsLDIF(writer, allWriter, KUNTALAINEN, addedUserIDs);
+        writeGroupsLDIFWithPics(writer, allWriter, KUNTALAINEN, addedUserPICs);
         writeGroupsStructureLDIF(structureWriter, KUNTALAINEN);
         writer.close();
       } finally {
@@ -411,6 +416,8 @@ public class LDIFWriter {
 
     return null;
   }
+  
+  // Communitites LDIFs
 
   private void writeKokuCommunitiesLDIF(FileWriter writer, FileWriter allWriter, String cn, String ou,
       Collection<String> userIDs) throws Exception {
@@ -437,18 +444,20 @@ public class LDIFWriter {
     writer.write("\n");
   }
 
+  // Community groups LDIFs
+  
   private void writeCommunitiesGroupsLDIF(FileWriter writer, FileWriter allWriter, String listType, Collection<String> userIDs)
       throws Exception {
     writeCommunitiesGroupsLDIF(writer, listType, userIDs);
     writeCommunitiesGroupsLDIF(allWriter, listType, userIDs);
   }
 
-  private void writeCommunitiesGroupsLDIF(FileWriter writer, String listType, Collection<String> userIDs) throws Exception {
+  private void writeCommunitiesGroupsLDIF(FileWriter writer, String listType, Collection<String> pics) throws Exception {
     writer.write("dn: cn=" + listType + ",ou=Groups,ou=KokuCommunities,o=koku,dc=example,dc=org" + "\n");
     writer.write("changetype: modify\n");
     writer.write("add: member\n");
-    for (String userID : userIDs) {
-      writer.write("member: cn=" + userID + ",ou=People,o=koku,dc=example,dc=org" + "\n");
+    for (String pic : pics) {
+      writer.write("member: cn=" + getUserID(pic) + ",ou=People,o=koku,dc=example,dc=org" + "\n");
     }
     writer.write("\n");
   }
@@ -461,9 +470,21 @@ public class LDIFWriter {
     writer.write("member: " + "\n");
     writer.write("\n");
   }
+  
+  // groups LDIFS
 
   private void writeGroupsLDIF(FileWriter writer, FileWriter allWriter, String listType, Collection<String> userIDs)
       throws Exception {
+    writeGroupsLDIF(writer, listType, userIDs);
+    writeGroupsLDIF(allWriter, listType, userIDs);
+  }
+  
+  private void writeGroupsLDIFWithPics(FileWriter writer, FileWriter allWriter, String listType, Collection<String> userPICs)
+      throws Exception {    
+    Collection<String> userIDs = new LinkedHashSet<String>();    
+    for (String pic : userPICs) {
+      userIDs.add(getUserID(pic));
+    }    
     writeGroupsLDIF(writer, listType, userIDs);
     writeGroupsLDIF(allWriter, listType, userIDs);
   }
@@ -486,15 +507,25 @@ public class LDIFWriter {
     writer.write("member: " + "\n");
     writer.write("\n");
   }
-
+  
+  // Person LDIFs
+  
   private void writePersonLDIF(FileWriter writer, FileWriter allWriter, String userId, String firstName,
-      String lastName, String tel, String email, String uid) throws Exception {
-    writePersonLDIF(writer, userId, firstName, lastName, tel, email, uid);
-    writePersonLDIF(allWriter, userId, firstName, lastName, tel, email, uid);
+      String lastName, String tel, String email, String pic) throws Exception {
+    writePersonLDIF(writer, userId, firstName, lastName, tel, email, pic);
+    writePersonLDIF(allWriter, userId, firstName, lastName, tel, email, pic);
   }
 
+  private void writePersonLDIF(FileWriter writer, FileWriter allWriter, String firstName,
+      String lastName, String tel, String email, String pic) throws Exception {
+    String userId = getUserID(pic);
+    
+    writePersonLDIF(writer, userId, firstName, lastName, tel, email, pic);
+    writePersonLDIF(allWriter, userId, firstName, lastName, tel, email, pic);
+  }
+  
   private void writePersonLDIF(FileWriter writer, String userId, String firstName, String lastName, String tel,
-      String email, String uid) throws Exception {
+      String email, String pic) throws Exception {
     writer.write("dn: cn=" + userId + ",ou=People,o=koku,dc=example,dc=org" + "\n");
     writer.write("cn: " + userId + "\n");
     writer.write("givenName: " + firstName + "\n");
@@ -509,7 +540,16 @@ public class LDIFWriter {
     if (email != null && email.length() != 0) {
       writer.write("mail: " + email + "\n");
     }
-    writer.write("uid: " + uid + "\n");
+    writer.write("uid: " + pic + "\n");
     writer.write("\n");
+  }
+  
+  protected String getUserID(String pic){
+    if(userIDtoPIC.get(pic) == null){
+      userIDCounter ++;
+      String userID = "user_" + format.format(new Date()) + "_" + userIDCounter;      
+      userIDtoPIC.put(pic, userID);
+    }  
+    return userIDtoPIC.get(pic);
   }
 }
