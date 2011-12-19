@@ -1,9 +1,8 @@
 package fi.koku.tools.dataimport;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.LinkedHashSet;
 
 import au.com.bytecode.opencsv.CSVReader;
 import fi.arcusys.tampere.hrsoa.entity.User;
@@ -16,8 +15,8 @@ public class PICWriter {
   private static final String EMPLOYEE_PI_CS_FILENAME = "EmployeePICs.txt";
 
   public void writeEmployeePICFile(CSVReader reader, WSCaller caller, File parent) throws Exception {
-    List<String> userPICs = new ArrayList<String>();
-    List<String> failedTOAddIDs = new ArrayList<String>();
+    Collection<String> userPICs = new LinkedHashSet<String>();
+    Collection<String> failedTOAddIDs = new LinkedHashSet<String>();
 
     String[] l;
     while ((l = reader.readNext()) != null) {
@@ -38,7 +37,7 @@ public class PICWriter {
   }
 
   public void writeEfficaCustomerPICFile(CSVReader reader, File parent) throws Exception {
-    List<String> customerIDs = new ArrayList<String>();
+    Collection<String> customerIDs = new LinkedHashSet<String>();
     String[] l;
     while ((l = reader.readNext()) != null) {
       addNotNull(customerIDs, l[Columns.EFFICA_CHILD_PIC]);
@@ -50,7 +49,7 @@ public class PICWriter {
   }
 
   public void writeHelmiCustomerPICFile(CSVReader reader, File parent) throws Exception {
-    List<String> customerIDs = new ArrayList<String>();
+    Collection<String> customerIDs = new LinkedHashSet<String>();
     String[] l;
     while ((l = reader.readNext()) != null) {
 

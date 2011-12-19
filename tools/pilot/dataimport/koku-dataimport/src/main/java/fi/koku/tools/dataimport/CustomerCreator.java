@@ -1,8 +1,8 @@
 package fi.koku.tools.dataimport;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 
 import au.com.bytecode.opencsv.CSVReader;
 import fi.koku.services.entity.community.v1.CommunityType;
@@ -19,8 +19,8 @@ public class CustomerCreator {
 
   public void createEfficaCustomers(CSVReader reader, WSCaller caller, File parent) throws Exception {
 
-    List<String> customerIDs = new ArrayList<String>();
-    List<String> communityIDs = new ArrayList<String>();
+    Collection<String> customerIDs = new LinkedHashSet<String>();
+    Collection<String> communityIDs = new LinkedHashSet<String>();
 
     String[] l;
     while ((l = reader.readNext()) != null) {
@@ -87,8 +87,8 @@ public class CustomerCreator {
 
   public void createHelmiCustomers(CSVReader reader, WSCaller caller, File parent) throws Exception {
 
-    List<String> customerIDs = new ArrayList<String>();
-    List<String> communityIDs = new ArrayList<String>();
+    Collection<String> customerIDs = new LinkedHashSet<String>();
+    Collection<String> communityIDs = new LinkedHashSet<String>();
 
     String[] l;
     while ((l = reader.readNext()) != null) {
@@ -166,7 +166,7 @@ public class CustomerCreator {
     Utils.writeIDsToFile(parent, communityIDs, HELMI_ADDED_COMMUNITY_IDS_TXT);
   }
 
-  private void addChildToCommunity(WSCaller caller, List<String> communityIDs, String guardianPic,
+  private void addChildToCommunity(WSCaller caller, Collection<String> communityIDs, String guardianPic,
       String guardianFirstNames, String childPIC) throws Exception {
 
     // Check if 'päämies' community exists
