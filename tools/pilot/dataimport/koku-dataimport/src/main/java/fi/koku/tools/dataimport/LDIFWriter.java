@@ -3,9 +3,9 @@ package fi.koku.tools.dataimport;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -46,9 +46,9 @@ public class LDIFWriter {
   private static final String NOT_FOUND_EMPLOYEE_IDS_TXT = "NotFoundEmployeeIDS.txt";
 
   public void writeEmployeeLDIF(CSVReader reader, WSCaller caller, File parent) throws Exception {
-    List<String> userIDs = new ArrayList<String>();
-    Map<String, List<String>> groupToUsers = new HashMap<String, List<String>>();
-    List<String> notFoundIDs = new ArrayList<String>();
+    Collection<String> userIDs = new LinkedHashSet<String>();
+    Map<String, LinkedHashSet<String>> groupToUsers = new HashMap<String, LinkedHashSet<String>>();
+    Collection<String> notFoundIDs = new LinkedHashSet<String>();
     FileWriter writer = null;
     FileWriter allWriter = null;
     FileWriter structureWriter = null;
@@ -79,9 +79,9 @@ public class LDIFWriter {
                   user.getEmail(), user.getSsn());
               userIDs.add(user.getUserId());
 
-              List<String> users = groupToUsers.get(l[Columns.EMPLOYEE_GROUP]);
+              LinkedHashSet<String> users = groupToUsers.get(l[Columns.EMPLOYEE_GROUP]);
               if (users == null) {
-                users = new ArrayList<String>();
+                users = new LinkedHashSet<String>();
               }
 
               if (!users.contains(user.getUserId())) {
@@ -117,7 +117,7 @@ public class LDIFWriter {
         if (NEUVOLAN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group)
             || KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group)) {
 
-          List<String> users = groupToUsers.get(group);
+          Collection<String> users = groupToUsers.get(group);
 
           try {
             writer = new FileWriter(new File(parent, EMPLOYEE_REGISTRY_FILENAME_PREFIX + group + LDIF_FILE_SUFFIX));
@@ -185,8 +185,8 @@ public class LDIFWriter {
   }
 
   public void writeEfficaCustomerLDIF(CSVReader reader, File parent) throws Exception {
-    List<String> addedUserIDs = new ArrayList<String>();
-    Map<String, List<String>> childGroupToUIDs = new HashMap<String, List<String>>();
+    Collection<String> addedUserIDs = new LinkedHashSet<String>();
+    Map<String, Collection<String>> childGroupToUIDs = new HashMap<String, Collection<String>>();
 
     FileWriter writer = null;
     FileWriter allWriter = null;
@@ -272,8 +272,8 @@ public class LDIFWriter {
   }
 
   public void writeHelmiCustomerLDIF(CSVReader reader, File parent) throws Exception {
-    List<String> addedUserIDs = new ArrayList<String>();
-    Map<String, List<String>> childGroupToUIDs = new HashMap<String, List<String>>();
+    Collection<String> addedUserIDs = new LinkedHashSet<String>();
+    Map<String, Collection<String>> childGroupToUIDs = new HashMap<String, Collection<String>>();
     FileWriter writer = null;
     FileWriter allWriter = null;
     FileWriter structureWriter = null;
@@ -366,15 +366,15 @@ public class LDIFWriter {
     }
   }
 
-  private void addChildToGroup(Map<String, List<String>> childGroupToUIDs, String childUnit, String childGroup,
+  private void addChildToGroup(Map<String, Collection<String>> childGroupToUIDs, String childUnit, String childGroup,
       String childPic) {
     String groupID = childUnit + " " + childGroup;
     groupID = groupID.replaceAll(",", "");
     groupID = groupID.replaceAll("\\+", "");
 
-    List<String> groupUIDs = childGroupToUIDs.get(groupID);
+    Collection<String> groupUIDs = childGroupToUIDs.get(groupID);
     if (groupUIDs == null) {
-      groupUIDs = new ArrayList<String>();
+      groupUIDs = new LinkedHashSet<String>();
     }
     if (!groupUIDs.contains(childPic)) {
       groupUIDs.add(childPic);
@@ -383,10 +383,10 @@ public class LDIFWriter {
   }
   
   private void writeChildGroupLDIFs(File parent, FileWriter allWriter, FileWriter structureWriter,
-      Map<String, List<String>> childGroupToUIDs) throws IOException, Exception {
+      Map<String, Collection<String>> childGroupToUIDs) throws IOException, Exception {
     FileWriter writer = null;
     for (String groupName : childGroupToUIDs.keySet()) {
-      List<String> groupUIDs = childGroupToUIDs.get(groupName);
+      Collection<String> groupUIDs = childGroupToUIDs.get(groupName);
 
       try {
         writer = new FileWriter(new File(parent, groupName + LDIF_FILE_SUFFIX));
@@ -413,12 +413,12 @@ public class LDIFWriter {
   }
 
   private void writeKokuCommunitiesLDIF(FileWriter writer, FileWriter allWriter, String cn, String ou,
-      List<String> userIDs) throws Exception {
+      Collection<String> userIDs) throws Exception {
     writeKokuCommunitiesLDIF(writer, cn, ou, userIDs);
     writeKokuCommunitiesLDIF(allWriter, cn, ou, userIDs);
   }
 
-  private void writeKokuCommunitiesLDIF(FileWriter writer, String cn, String ou, List<String> userIDs) throws Exception {
+  private void writeKokuCommunitiesLDIF(FileWriter writer, String cn, String ou, Collection<String> userIDs) throws Exception {
     writer.write("dn: cn=" + cn + ",ou=" + ou + ",ou=KokuCommunities,o=koku,dc=example,dc=org" + "\n");
     writer.write("changetype: modify\n");
     writer.write("add: member\n");
@@ -437,13 +437,13 @@ public class LDIFWriter {
     writer.write("\n");
   }
 
-  private void writeCommunitiesGroupsLDIF(FileWriter writer, FileWriter allWriter, String listType, List<String> userIDs)
+  private void writeCommunitiesGroupsLDIF(FileWriter writer, FileWriter allWriter, String listType, Collection<String> userIDs)
       throws Exception {
     writeCommunitiesGroupsLDIF(writer, listType, userIDs);
     writeCommunitiesGroupsLDIF(allWriter, listType, userIDs);
   }
 
-  private void writeCommunitiesGroupsLDIF(FileWriter writer, String listType, List<String> userIDs) throws Exception {
+  private void writeCommunitiesGroupsLDIF(FileWriter writer, String listType, Collection<String> userIDs) throws Exception {
     writer.write("dn: cn=" + listType + ",ou=Groups,ou=KokuCommunities,o=koku,dc=example,dc=org" + "\n");
     writer.write("changetype: modify\n");
     writer.write("add: member\n");
@@ -462,13 +462,13 @@ public class LDIFWriter {
     writer.write("\n");
   }
 
-  private void writeGroupsLDIF(FileWriter writer, FileWriter allWriter, String listType, List<String> userIDs)
+  private void writeGroupsLDIF(FileWriter writer, FileWriter allWriter, String listType, Collection<String> userIDs)
       throws Exception {
     writeGroupsLDIF(writer, listType, userIDs);
     writeGroupsLDIF(allWriter, listType, userIDs);
   }
 
-  private void writeGroupsLDIF(FileWriter writer, String listType, List<String> userIDs) throws Exception {
+  private void writeGroupsLDIF(FileWriter writer, String listType, Collection<String> userIDs) throws Exception {
     writer.write("dn: cn=" + listType + ",ou=Groups,o=koku,dc=example,dc=org" + "\n");
     writer.write("changetype: modify\n");
     writer.write("add: member\n");
