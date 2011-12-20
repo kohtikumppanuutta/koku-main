@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<wsdl:definitions name="helloService"
+  targetNamespace="http://services.ixonos.com/hello/v1"
+  xmlns:tns="http://services.ixonos.com/hello/v1"
+  xmlns:soap11="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  >
+
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://services.ixonos.com/hello/v1">
+      <xsd:element name="addressee" type="xsd:string"/>
+      <xsd:element name="greeting" type="xsd:string"/>
+    </xsd:schema>
+  </wsdl:types>
+
+  <wsdl:message name="msgGetGreetingRequest">
+    <wsdl:part name="Addressee" element="tns:addressee"/>
+  </wsdl:message>
+  
+  <wsdl:message name="msgGetGreetingResponse">
+    <wsdl:part name="Greeting" element="tns:greeting"/>
+  </wsdl:message>
+
+  <wsdl:portType name="helloServicePortType">
+    <wsdl:operation name="opGetGreeting">
+      <wsdl:input message="tns:msgGetGreetingRequest"/>
+      <wsdl:output message="tns:msgGetGreetingResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+
+  <wsdl:binding name="helloService-soap11-binding" type="tns:helloServicePortType">
+    <soap11:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="opGetGreeting">
+      <soap11:operation soapAction="http://ixonos.com/action/hello/get"/>
+        <wsdl:input>
+          <soap11:body use="literal"/>
+        </wsdl:input>
+        <wsdl:output>
+          <soap11:body use="literal"/>
+        </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  
+  <wsdl:service name="helloService">
+    <wsdl:port name="helloService-soap11-port" binding="tns:helloService-soap11-binding" >
+      <soap11:address location="http://localhost:8088/hello/"/>
+    </wsdl:port>
+  </wsdl:service>
+
+</wsdl:definitions>
