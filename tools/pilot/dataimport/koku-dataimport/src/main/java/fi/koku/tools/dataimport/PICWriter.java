@@ -21,9 +21,9 @@ public class PICWriter {
     String[] l;
     while ((l = reader.readNext()) != null) {
 
-      User user = caller.getUserById(l[Columns.EMPLOYEE_ID]);
+      User user = caller.getUserById(l[Columns.EMPLOYEE_FRMT_1_ID]);
       if (user == null) {
-        failedTOAddIDs.add(l[Columns.EMPLOYEE_ID]);
+        failedTOAddIDs.add(l[Columns.EMPLOYEE_FRMT_1_ID]);
       } else {
         addNotNull(userPICs, user.getSsn());
       }

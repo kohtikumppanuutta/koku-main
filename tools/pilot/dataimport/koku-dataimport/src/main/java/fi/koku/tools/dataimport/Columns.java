@@ -66,6 +66,13 @@ public interface Columns {
   /**
    * Employee
    */  
+  public int EMPLOYEE_FRMT_1_ID = 0;
+  public int EMPLOYEE_FRMT_1_GROUP = 1;
+  
   public int EMPLOYEE_ID = 0;
-  public int EMPLOYEE_GROUP = 1;
+  public int EMPLOYEE_PIC = 1;
+  public int EMPLOYEE_FIRSTNAME = 2;
+  public int EMPLOYEE_LASTNAME = 3;
+  public int EMPLOYEE_EMAIL = 4;
+  public int EMPLOYEE_GROUP = 5;
 }
