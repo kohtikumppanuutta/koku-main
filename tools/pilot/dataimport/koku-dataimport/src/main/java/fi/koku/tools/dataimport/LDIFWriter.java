@@ -11,7 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import au.com.bytecode.opencsv.CSVReader;
-import fi.arcusys.tampere.hrsoa.entity.User;
+import fi.koku.tools.dataimport.model.Employee;
 
 public class LDIFWriter {
 
@@ -23,6 +23,7 @@ public class LDIFWriter {
   private static final String KK_SERVICEAREA_SCHOOL_HEALTH = "kk.servicearea.schoolHealth";
   private static final String KK_SERVICEAREA_DAYCARE = "kk.servicearea.daycare";
   private static final String KK_SERVICEAREA_CHILD_HEALTH = "kk.servicearea.childHealth";
+  private static final String KK_SERVICEAREA_BASIC_EDUCATION = "kk.servicearea.basicEducation";
   private static final String DAYCAREREGISTRY = "daycareregistry";
   private static final String HEALTHCAREREGISTRY = "healthcareregistry";
   private static final String EMPLOYEE_ORG_UNIT_FILENAME_PREFIX = "employeeOrgUnit_";
@@ -45,16 +46,15 @@ public class LDIFWriter {
   private static final String EMPLOYEE_GROUP_LDIF_FILE = "EmployeeGroup.ldif";
   private static final String EMPLOYEE_LDIF_FILE = "Employee.ldif";
   private static final String EMPLOYEE_ALL_LDIF_FILE = "Employee_all.ldif";
-  private static final String NOT_FOUND_EMPLOYEE_IDS_TXT = "NotFoundEmployeeIDS.txt";
   
   private Map<String, String> userIDtoPIC = new HashMap<String, String>();
   private int userIDCounter = 0;
   private SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
 
-  public void writeEmployeeLDIF(CSVReader reader, WSCaller caller, File parent) throws Exception {
+  public void writeEmployeeLDIF(Collection<Employee> employees, File parent) throws Exception {
     Collection<String> userIDs = new LinkedHashSet<String>();
     Map<String, LinkedHashSet<String>> groupToUsers = new HashMap<String, LinkedHashSet<String>>();
-    Collection<String> notFoundIDs = new LinkedHashSet<String>();
+
     FileWriter writer = null;
     FileWriter allWriter = null;
     FileWriter structureWriter = null;
@@ -66,38 +66,20 @@ public class LDIFWriter {
       try {
         writer = new FileWriter(new File(parent, EMPLOYEE_LDIF_FILE));
 
-        String[] l;
-        while ((l = reader.readNext()) != null) {
+        for (Employee employee : employees) {
+          writePersonLDIF(writer, allWriter, employee.getUserId(), employee.getFirstName(), employee.getLastName(),
+              null, employee.getEmail(), employee.getSsn());
+          userIDs.add(employee.getUserId());
 
-          // remove whitespace
-          for (int i = 0; i < l.length; i++) {
-            l[i] = l[i].trim();
+          LinkedHashSet<String> groupEmployees = groupToUsers.get(employee.getGroup());
+          if (groupEmployees == null) {
+            groupEmployees = new LinkedHashSet<String>();
           }
-
-          User user = caller.getUserById(l[Columns.EMPLOYEE_ID]);
-          if (user == null) {
-            notFoundIDs.add(l[Columns.EMPLOYEE_ID]);
-          } else {
-            // try to avoid duplicates
-            if (!userIDs.contains(user.getUserId())) {
-              // TODO is user.getUserId() the correct id for this case?
-              writePersonLDIF(writer, allWriter, user.getUserId(), user.getFirstName(), user.getLastName(), null,
-                  user.getEmail(), user.getSsn());
-              userIDs.add(user.getUserId());
-
-              LinkedHashSet<String> users = groupToUsers.get(l[Columns.EMPLOYEE_GROUP]);
-              if (users == null) {
-                users = new LinkedHashSet<String>();
-              }
-
-              if (!users.contains(user.getUserId())) {
-                users.add(user.getUserId());
-              }
-              groupToUsers.put(l[Columns.EMPLOYEE_GROUP], users);
-            }
+          if (!groupEmployees.contains(employee.getUserId())) {
+            groupEmployees.add(employee.getUserId());
           }
+          groupToUsers.put(employee.getGroup(), groupEmployees);
         }
-
         writer.close();
       } finally {
         if (writer != null) {
@@ -106,68 +88,7 @@ public class LDIFWriter {
       }
       System.out.println("Employee LDIF written");
 
-      try {
-        writer = new FileWriter(new File(parent, EMPLOYEE_GROUP_LDIF_FILE));
-        writeGroupsLDIF(writer, allWriter, VIRKAILIJA, userIDs);
-        writeGroupsStructureLDIF(structureWriter, VIRKAILIJA);
-        writer.close();
-      } finally {
-        if (writer != null) {
-          writer.close();
-        }
-      }
-      System.out.println("Employee Group LDIF written");
-
-      for (String group : groupToUsers.keySet()) {
-
-        if (NEUVOLAN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group)
-            || KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group)) {
-
-          Collection<String> users = groupToUsers.get(group);
-
-          try {
-            writer = new FileWriter(new File(parent, EMPLOYEE_REGISTRY_FILENAME_PREFIX + group + LDIF_FILE_SUFFIX));
-
-            if (NEUVOLAN_TYÖNTEKIJÄ.equals(group)) {
-              writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
-              writeKokuCommunitiesStructureLDIF(structureWriter, HEALTHCAREREGISTRY, REGISTRIES);
-            } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group)) {
-              writeKokuCommunitiesLDIF(writer, allWriter, DAYCAREREGISTRY, REGISTRIES, users);
-              writeKokuCommunitiesStructureLDIF(structureWriter, DAYCAREREGISTRY, REGISTRIES);
-            } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
-              writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
-              writeKokuCommunitiesStructureLDIF(structureWriter, HEALTHCAREREGISTRY, REGISTRIES);
-            }
-
-            writer.close();
-          } finally {
-            if (writer != null) {
-              writer.close();
-            }
-          }
-
-          try {
-            writer = new FileWriter(new File(parent, EMPLOYEE_ORG_UNIT_FILENAME_PREFIX + group + LDIF_FILE_SUFFIX));
-
-            if (NEUVOLAN_TYÖNTEKIJÄ.equals(group)) {
-              writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS, users);
-              writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS);
-            } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group)) {
-              writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS, users);
-              writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS);
-            } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
-              writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS, users);
-              writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS);
-            }
-
-            writer.close();
-          } finally {
-            if (writer != null) {
-              writer.close();
-            }
-          }
-        }
-      }
+      writeEmployeeGroupLDIFs(parent, userIDs, groupToUsers, allWriter, structureWriter);
 
       allWriter.close();
       structureWriter.close();
@@ -182,12 +103,7 @@ public class LDIFWriter {
     }
 
     System.out.println("Employee ALL LDIF written");
-    System.out.println("Employee Registry LDIFs written");
-    System.out.println("Employee OrgUnit LDIFs written");
-
-    if (notFoundIDs.size() > 0) {
-      Utils.writeIDsToFile(parent, notFoundIDs, NOT_FOUND_EMPLOYEE_IDS_TXT);
-    }
+    System.out.println("Employee Structure LDIFs written");
   }
 
   public void writeEfficaCustomerLDIF(CSVReader reader, File parent) throws Exception {
@@ -369,6 +285,77 @@ public class LDIFWriter {
         structureWriter.close();
       }
     }
+  }
+  
+  private void writeEmployeeGroupLDIFs(File parent, Collection<String> userIDs,
+      Map<String, LinkedHashSet<String>> groupToUsers, FileWriter allWriter, FileWriter structureWriter)
+      throws IOException, Exception {
+    
+    FileWriter writer = null;
+    try {
+      writer = new FileWriter(new File(parent, EMPLOYEE_GROUP_LDIF_FILE));
+      writeGroupsLDIF(writer, allWriter, VIRKAILIJA, userIDs);
+      writeGroupsStructureLDIF(structureWriter, VIRKAILIJA);
+      writer.close();
+    } finally {
+      if (writer != null) {
+        writer.close();
+      }
+    }
+    System.out.println("Employee Group LDIF written");
+
+    for (String group : groupToUsers.keySet()) {
+
+      if (NEUVOLAN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group)
+          || KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group)) {
+
+        Collection<String> users = groupToUsers.get(group);
+
+        try {
+          writer = new FileWriter(new File(parent, EMPLOYEE_REGISTRY_FILENAME_PREFIX + group + LDIF_FILE_SUFFIX));
+
+          if (NEUVOLAN_TYÖNTEKIJÄ.equals(group)) {
+            writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
+            writeKokuCommunitiesStructureLDIF(structureWriter, HEALTHCAREREGISTRY, REGISTRIES);
+          } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group)) {
+            writeKokuCommunitiesLDIF(writer, allWriter, DAYCAREREGISTRY, REGISTRIES, users);
+            writeKokuCommunitiesStructureLDIF(structureWriter, DAYCAREREGISTRY, REGISTRIES);
+          } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
+            writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
+            writeKokuCommunitiesStructureLDIF(structureWriter, HEALTHCAREREGISTRY, REGISTRIES);
+          }
+
+          writer.close();
+        } finally {
+          if (writer != null) {
+            writer.close();
+          }
+        }
+
+        try {
+          writer = new FileWriter(new File(parent, EMPLOYEE_ORG_UNIT_FILENAME_PREFIX + group + LDIF_FILE_SUFFIX));
+
+          if (NEUVOLAN_TYÖNTEKIJÄ.equals(group)) {
+            writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS, users);
+            writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS);
+          } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group)) {
+            writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS, users);
+            writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS);
+          } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
+            writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS, users);
+            writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS);
+          }
+
+          writer.close();
+        } finally {
+          if (writer != null) {
+            writer.close();
+          }
+        }
+      }
+    }   
+    System.out.println("Employee Registry LDIFs written");
+    System.out.println("Employee OrgUnit LDIFs written");
   }
 
   private void addChildToGroup(Map<String, Collection<String>> childGroupToUIDs, String childUnit, String childGroup,
