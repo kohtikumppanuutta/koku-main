@@ -25,7 +25,7 @@ public class PICWriter {
       if (user == null) {
         failedTOAddIDs.add(l[Columns.EMPLOYEE_FRMT_1_ID]);
       } else {
-        addNotNull(userPICs, user.getSsn());
+        Utils.addNotNull(userPICs, user.getSsn());
       }
     }
 
@@ -40,9 +40,9 @@ public class PICWriter {
     Collection<String> customerIDs = new LinkedHashSet<String>();
     String[] l;
     while ((l = reader.readNext()) != null) {
-      addNotNull(customerIDs, l[Columns.EFFICA_CHILD_PIC]);
-      addNotNull(customerIDs, l[Columns.EFFICA_PM_PIC]);
-      addNotNull(customerIDs, l[Columns.EFFICA_PM_2_PIC]);
+      Utils.addNotNull(customerIDs, l[Columns.EFFICA_CHILD_PIC]);
+      Utils.addNotNull(customerIDs, l[Columns.EFFICA_PM_PIC]);
+      Utils.addNotNull(customerIDs, l[Columns.EFFICA_PM_2_PIC]);
     }
     System.out.println("Count: " + customerIDs.size());
     Utils.writeIDsToFile(parent, customerIDs, EFFICA_CUSTOMER_PI_CS_FILENAME);
@@ -54,21 +54,11 @@ public class PICWriter {
     while ((l = reader.readNext()) != null) {
 
       String childPIC = Utils.createUID(l[Columns.HELMI_CHILD_UID_POSTFIX], l[Columns.HELMI_CHILD_BIRTHDATE]);
-      addNotNull(customerIDs, childPIC);
-      addNotNull(customerIDs, l[Columns.HELMI_PM_1_PIC]);
-      addNotNull(customerIDs, l[Columns.HELMI_PM_2_PIC]);
+      Utils.addNotNull(customerIDs, childPIC);
+      Utils.addNotNull(customerIDs, l[Columns.HELMI_PM_1_PIC]);
+      Utils.addNotNull(customerIDs, l[Columns.HELMI_PM_2_PIC]);
     }
     System.out.println("Count: " + customerIDs.size());
     Utils.writeIDsToFile(parent, customerIDs, HELMI_CUSTOMER_PI_CS_FILENAME);
-  }
-
-  private void addNotNull(Collection<String> col, String toAdd) {
-    if (toAdd != null && toAdd.length() > 0 && !col.contains("'" + toAdd.trim() + "'")) {
-      col.add("'" + toAdd.trim() + "'");
-    }
-
-    // if (toAdd != null && toAdd.length() > 0 && !col.contains(toAdd.trim())) {
-    // col.add(toAdd.trim());
-    // }
-  }
+  }  
 }

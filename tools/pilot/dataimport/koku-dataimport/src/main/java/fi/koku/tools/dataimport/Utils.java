@@ -104,4 +104,22 @@ public class Utils {
     }
     return temp;
   }
+  
+  public static void addNotNull(Collection<String> col, String toAdd) {
+    if (toAdd != null && toAdd.length() > 0 && !col.contains("'" + toAdd.trim() + "'")) {
+      col.add("'" + toAdd.trim() + "'");
+    }
+
+//     if (toAdd != null && toAdd.length() > 0 && !col.contains(toAdd.trim())) {
+//     col.add(toAdd.trim());
+//     }
+  }
+  
+  public static boolean isNotNullOrEmpty(String s) {
+    if (s != null && !s.trim().isEmpty()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

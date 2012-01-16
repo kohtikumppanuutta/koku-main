@@ -1,6 +1,7 @@
 package fi.koku.tools.dataimport;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -9,6 +10,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+
+import javax.swing.JFileChooser;
 
 import au.com.bytecode.opencsv.CSVReader;
 import fi.koku.tools.dataimport.model.Employee;
@@ -110,6 +113,13 @@ public class LDIFWriter {
     Collection<String> addedUserPICSs = new LinkedHashSet<String>();
     Map<String, Collection<String>> childGroupToUIDs = new HashMap<String, Collection<String>>();
 
+    Collection<String> previousUserPICSs = new LinkedHashSet<String>();
+    
+    // if there is already added users to LDAP you can give the pics as csv
+    selectAddedUserPics(previousUserPICSs);
+    
+    addedUserPICSs.addAll(previousUserPICSs);
+    
     FileWriter writer = null;
     FileWriter allWriter = null;
     FileWriter structureWriter = null;
@@ -128,19 +138,20 @@ public class LDIFWriter {
           for (int i = 0; i < l.length; i++) {
             l[i] = l[i].trim();
           }
-
+              
           // lapsi
-          if (!addedUserPICSs.contains(l[Columns.EFFICA_CHILD_PIC])) {
+          if (Utils.isNotNullOrEmpty(l[Columns.EFFICA_CHILD_PIC])
+              && !addedUserPICSs.contains(l[Columns.EFFICA_CHILD_PIC])) {
             writePersonLDIF(writer, allWriter, Utils.getFirstName(l[Columns.EFFICA_CHILD_FIRSTNAMES]),
                 l[Columns.EFFICA_CHILD_LASTNAME], l[Columns.EFFICA_CHILD_PHONE], null, l[Columns.EFFICA_CHILD_PIC]);
             addedUserPICSs.add(l[Columns.EFFICA_CHILD_PIC]);
+
+            addChildToGroup(childGroupToUIDs, l[Columns.EFFICA_CHILD_UNIT], l[Columns.EFFICA_CHILD_GROUP],
+                l[Columns.EFFICA_CHILD_PIC]);
           }
 
-          addChildToGroup(childGroupToUIDs, l[Columns.EFFICA_CHILD_UNIT], l[Columns.EFFICA_CHILD_GROUP],
-              l[Columns.EFFICA_CHILD_PIC]);
-
           // päähenkilö
-          if (!addedUserPICSs.contains(l[Columns.EFFICA_PM_PIC])) {
+          if (Utils.isNotNullOrEmpty(l[Columns.EFFICA_PM_PIC]) && !addedUserPICSs.contains(l[Columns.EFFICA_PM_PIC])) {
             writePersonLDIF(writer, allWriter, Utils.getFirstName(l[Columns.EFFICA_PM_FIRSTNAMES]),
                 l[Columns.EFFICA_PM_LASTNAME],
                 getPreferredPhone(l[Columns.EFFICA_PM_PHONE_2], l[Columns.EFFICA_PM_PHONE]),
@@ -149,7 +160,8 @@ public class LDIFWriter {
           }
 
           // puoliso
-          if (!addedUserPICSs.contains(l[Columns.EFFICA_PM_2_PIC])) {
+          if (Utils.isNotNullOrEmpty(l[Columns.EFFICA_PM_2_PIC])
+              && !addedUserPICSs.contains(l[Columns.EFFICA_PM_2_PIC])) {
             writePersonLDIF(writer, allWriter, Utils.getFirstName(l[Columns.EFFICA_PM_2_FIRSTNAMES]),
                 l[Columns.EFFICA_PM_2_LASTNAME], l[Columns.EFFICA_PM_2_PHONE], l[Columns.EFFICA_PM_2_EMAIL],
                 l[Columns.EFFICA_PM_2_PIC]);
@@ -166,6 +178,10 @@ public class LDIFWriter {
 
       try {
         writer = new FileWriter(new File(parent, EFFICA_CUSTOMER_GROUP_LDIF_FILE));
+        
+        //remove the previous user pics
+        addedUserPICSs.removeAll(previousUserPICSs);
+        
         writeGroupsLDIFWithPics(writer, allWriter, KUNTALAINEN, addedUserPICSs);
         writeGroupsStructureLDIF(structureWriter, KUNTALAINEN);
         writer.close();
@@ -285,6 +301,23 @@ public class LDIFWriter {
         structureWriter.close();
       }
     }
+  }
+  
+  private void selectAddedUserPics(Collection<String> piclist) throws Exception {   
+    JFileChooser chooser = new JFileChooser(new File("c:/users/hanhian/desktop"));
+    chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    int result = chooser.showOpenDialog(null);
+
+    if (result == JFileChooser.APPROVE_OPTION) {
+      File file = chooser.getSelectedFile();
+      CSVReader reader = new CSVReader(new FileReader(file));
+      
+      String[] l;
+      while ((l = reader.readNext()) != null) {
+        // read the only value in the piclist
+        Utils.addNotNull(piclist, l[0]);
+      }
+    }  
   }
   
   private void writeEmployeeGroupLDIFs(File parent, Collection<String> userIDs,
