@@ -22,10 +22,14 @@ public class CustomerCreator {
     Collection<String> customerIDs = new LinkedHashSet<String>();
     Collection<String> communityIDs = new LinkedHashSet<String>();
 
+    int counter = 0;
+    
     String[] l;
     while ((l = reader.readNext()) != null) {
       try {
 
+        System.out.println(counter ++);
+        
         // remove whitespace
         for (int i = 0; i < l.length; i++) {
           l[i] = l[i].trim();
@@ -46,27 +50,30 @@ public class CustomerCreator {
           customerIDs.add(caller.addCustomer(l[Columns.EFFICA_PM_PIC], getBirthDate(l[Columns.EFFICA_PM_PIC]),
               l[Columns.EFFICA_PM_LASTNAME], Utils.getFirstName(l[Columns.EFFICA_PM_FIRSTNAMES]),
               l[Columns.EFFICA_PM_FIRSTNAMES], l[Columns.EFFICA_PM_KANSALAISUUSKOODI],
-              l[Columns.EFFICA_PM_KUNTAKOODI], l[Columns.EFFICA_PM_KIELIKOODI], l[Columns.EFFICA_PM_ADDRESS],
+              l[Columns.EFFICA_PM_KUNTAKOODI], l[Columns.EFFICA_PM_KIELIKOODI], removeTurvaKielto(l[Columns.EFFICA_PM_ADDRESS]),
               l[Columns.EFFICA_PM_POST_OFFICE], l[Columns.EFFICA_PM_POST_CODE], l[Columns.EFFICA_PM_PHONE],
               l[Columns.EFFICA_PM_PHONE_2], l[Columns.EFFICA_PM_EMAIL], l[Columns.EFFICA_PM_EMAIL_2]));
         }
 
-        addChildToCommunity(caller, communityIDs, l[Columns.EFFICA_PM_PIC], l[Columns.EFFICA_PM_FIRSTNAMES],
-            l[Columns.EFFICA_CHILD_PIC]);
+        if (Utils.isNotNullOrEmpty(l[Columns.EFFICA_PM_PIC]) && Utils.isNotNullOrEmpty(l[Columns.EFFICA_CHILD_PIC])) {
+          addChildToCommunity(caller, communityIDs, l[Columns.EFFICA_PM_PIC], l[Columns.EFFICA_PM_FIRSTNAMES],
+              l[Columns.EFFICA_CHILD_PIC]);
+        }
 
         // Create 'puoliso'
-        if (l[Columns.EFFICA_PM_2_PIC] != null && l[Columns.EFFICA_PM_2_PIC].length() > 0 && 
-            caller.getCustomerByPic(l[Columns.EFFICA_PM_2_PIC]) == null) {         
+        if (l[Columns.EFFICA_PM_2_PIC].length() > 0 && caller.getCustomerByPic(l[Columns.EFFICA_PM_2_PIC]) == null) {         
           customerIDs.add(caller.addCustomer(l[Columns.EFFICA_PM_2_PIC], getBirthDate(l[Columns.EFFICA_PM_2_PIC]),
               l[Columns.EFFICA_PM_2_LASTNAME], Utils.getFirstName(l[Columns.EFFICA_PM_2_FIRSTNAMES]),
               l[Columns.EFFICA_PM_2_FIRSTNAMES], l[Columns.EFFICA_PM_2_KANSALAISUUSKOODI],
-              l[Columns.EFFICA_PM_2_KUNTAKOODI], l[Columns.EFFICA_PM_2_KIELIKOODI], l[Columns.EFFICA_PM_2_ADDRESS],
+              l[Columns.EFFICA_PM_2_KUNTAKOODI], l[Columns.EFFICA_PM_2_KIELIKOODI], removeTurvaKielto(l[Columns.EFFICA_PM_2_ADDRESS]),
               l[Columns.EFFICA_PM_2_POST_OFFICE], l[Columns.EFFICA_PM_2_POST_CODE], l[Columns.EFFICA_PM_2_PHONE],
               null, l[Columns.EFFICA_PM_2_EMAIL], l[Columns.EFFICA_PM_2_EMAIL_2]));
         }
 
+        if (Utils.isNotNullOrEmpty(l[Columns.EFFICA_PM_2_PIC]) && Utils.isNotNullOrEmpty(l[Columns.EFFICA_CHILD_PIC])) {
         addChildToCommunity(caller, communityIDs, l[Columns.EFFICA_PM_2_PIC], l[Columns.EFFICA_PM_2_FIRSTNAMES],
             l[Columns.EFFICA_CHILD_PIC]);
+        }
 
       } catch (Exception e) {
         System.err.println("Data: ");
