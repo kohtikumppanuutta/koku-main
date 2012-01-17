@@ -246,7 +246,8 @@ public class LDIFWriter {
           addChildToGroup(childGroupToUIDs, l[Columns.HELMI_CHILD_UNIT], l[Columns.HELMI_CHILD_GROUP], childPIC);
 
           // päähenkilö
-          if (!addedUserPICs.contains(l[Columns.HELMI_PM_1_PIC])) {
+          if (guardians[0] != null && guardians[0].length() > 0 && l[Columns.HELMI_PM_1_PIC] != null
+              && l[Columns.HELMI_PM_1_PIC].length() > 0 && !addedUserPICs.contains(l[Columns.HELMI_PM_1_PIC])) {
             // this is not a copy paste mistake, the Helmi data has
             // the last name first
             String lastName = Utils.getFirstName(guardians[0]);

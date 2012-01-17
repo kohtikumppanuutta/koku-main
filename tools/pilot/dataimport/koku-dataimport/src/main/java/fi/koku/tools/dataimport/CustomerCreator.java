@@ -71,8 +71,8 @@ public class CustomerCreator {
         }
 
         if (Utils.isNotNullOrEmpty(l[Columns.EFFICA_PM_2_PIC]) && Utils.isNotNullOrEmpty(l[Columns.EFFICA_CHILD_PIC])) {
-        addChildToCommunity(caller, communityIDs, l[Columns.EFFICA_PM_2_PIC], l[Columns.EFFICA_PM_2_FIRSTNAMES],
-            l[Columns.EFFICA_CHILD_PIC]);
+          addChildToCommunity(caller, communityIDs, l[Columns.EFFICA_PM_2_PIC], l[Columns.EFFICA_PM_2_FIRSTNAMES],
+              l[Columns.EFFICA_CHILD_PIC]);
         }
 
       } catch (Exception e) {
@@ -120,25 +120,30 @@ public class CustomerCreator {
               l[Columns.HELMI_CHILD_LANGUAGE], l[Columns.HELMI_ADDRESS], null, null, null, null, null, null));
         }
 
-        // Create 'päämies'
-        if (caller.getCustomerByPic(l[Columns.HELMI_PM_1_PIC]) == null) {
-          // this is not a copy paste mistake, the Helmi data has
-          // the last name first
-          String lastName = Utils.getFirstName(guardians[0]);
-          String firstNames = Utils.getSecondName(guardians[0]);
+        if (guardians[0] != null && guardians[0].length() > 0 && l[Columns.HELMI_PM_1_PIC] != null
+            && l[Columns.HELMI_PM_1_PIC].length() > 0) {
 
-          // TODO add post office and post code
-          // TODO replace hardcoded values
-          customerIDs.add(caller.addCustomer(l[Columns.HELMI_PM_1_PIC], getBirthDate(l[Columns.HELMI_PM_1_PIC]),
-              lastName, Utils.getFirstName(firstNames), firstNames, "FI", "837", "FI", l[Columns.HELMI_ADDRESS], null,
-              null, null, phones[0], emails[0], null));
+          // Create 'päämies'
+          if (caller.getCustomerByPic(l[Columns.HELMI_PM_1_PIC]) == null) {
+            // this is not a copy paste mistake, the Helmi data has
+            // the last name first
+            String lastName = Utils.getFirstName(guardians[0]);
+            String firstNames = Utils.getSecondName(guardians[0]);
+
+            // TODO add post office and post code
+            // TODO replace hardcoded values
+            customerIDs.add(caller.addCustomer(l[Columns.HELMI_PM_1_PIC], getBirthDate(l[Columns.HELMI_PM_1_PIC]),
+                lastName, Utils.getFirstName(firstNames), firstNames, "FI", "837", "FI", l[Columns.HELMI_ADDRESS],
+                null, null, null, phones[0], emails[0], null));
+          }
+
+          addChildToCommunity(caller, communityIDs, l[Columns.HELMI_PM_1_PIC], Utils.getSecondName(guardians[0]),
+              childPIC);
         }
-
-        addChildToCommunity(caller, communityIDs, l[Columns.HELMI_PM_1_PIC], Utils.getSecondName(guardians[0]),
-            childPIC);
 
         if (guardians[1] != null && guardians[1].length() > 0 && l[Columns.HELMI_PM_2_PIC] != null
             && l[Columns.HELMI_PM_2_PIC].length() > 0) {
+          
           // Create 'toinen huoltaja'
           if (caller.getCustomerByPic(l[Columns.HELMI_PM_2_PIC]) == null) {
             // this is not a copy paste mistake, the Helmi data has
