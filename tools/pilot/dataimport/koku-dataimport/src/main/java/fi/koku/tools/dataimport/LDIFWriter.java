@@ -23,16 +23,21 @@ public class LDIFWriter {
   private static final String EMPLOYEE_STRUCTURE_FILENAME = "Employee_structure.ldif";
   private static final String REGISTRIES = "Registries";
   private static final String ORG_UNITS = "OrgUnits";
+  private static final String ROLES = "Roles";
   private static final String KK_SERVICEAREA_SCHOOL_HEALTH = "kk.servicearea.schoolHealth";
   private static final String KK_SERVICEAREA_DAYCARE = "kk.servicearea.daycare";
   private static final String KK_SERVICEAREA_CHILD_HEALTH = "kk.servicearea.childHealth";
   private static final String KK_SERVICEAREA_BASIC_EDUCATION = "kk.servicearea.basicEducation";
   private static final String DAYCAREREGISTRY = "daycareregistry";
   private static final String HEALTHCAREREGISTRY = "healthcareregistry";
+  private static final String LOK_LOG_ADMIN = "LOK_LOG_ADMIN";
+  private static final String LOK_ADMIN = "LOK_ADMIN";
+  private static final String ROLE_ = "ROLE_";
   private static final String EMPLOYEE_ORG_UNIT_FILENAME_PREFIX = "employeeOrgUnit_";
   private static final String LDIF_FILE_SUFFIX = ".ldif";
   private static final String EMPLOYEE_REGISTRY_FILENAME_PREFIX = "employeeRegistry_";
   private static final String KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ = "Kouluterveydenhuollon työntekijä";
+  private static final String KOULUN_TYÖNTEKIJÄ = "Koulun työntekijä";
   private static final String PÄIVÄKODIN_TYÖNTEKIJÄ = "Päiväkodin työntekijä";
   private static final String PÄIVÄKODIN_JOHTAJAT = "Päiväkodin johtajat";
   private static final String NEUVOLAN_TYÖNTEKIJÄ = "Neuvolan työntekijä";
@@ -57,6 +62,8 @@ public class LDIFWriter {
   public void writeEmployeeLDIF(Collection<Employee> employees, File parent) throws Exception {
     Collection<String> userIDs = new LinkedHashSet<String>();
     Map<String, LinkedHashSet<String>> groupToUsers = new HashMap<String, LinkedHashSet<String>>();
+    Map<String, LinkedHashSet<String>> unitToUsers = new HashMap<String, LinkedHashSet<String>>();
+    Map<String, LinkedHashSet<String>> jobToUsers = new HashMap<String, LinkedHashSet<String>>();
 
     FileWriter writer = null;
     FileWriter allWriter = null;
@@ -74,14 +81,9 @@ public class LDIFWriter {
               null, employee.getEmail(), employee.getSsn());
           userIDs.add(employee.getUserId());
 
-          LinkedHashSet<String> groupEmployees = groupToUsers.get(employee.getGroup());
-          if (groupEmployees == null) {
-            groupEmployees = new LinkedHashSet<String>();
-          }
-          if (!groupEmployees.contains(employee.getUserId())) {
-            groupEmployees.add(employee.getUserId());
-          }
-          groupToUsers.put(employee.getGroup(), groupEmployees);
+          addToMap(groupToUsers, employee, employee.getGroup());
+          addToMap(unitToUsers, employee, employee.getUnit());
+          addToMap(jobToUsers, employee, employee.getJobTitle());          
         }
         writer.close();
       } finally {
@@ -92,7 +94,10 @@ public class LDIFWriter {
       System.out.println("Employee LDIF written");
 
       writeEmployeeGroupLDIFs(parent, userIDs, groupToUsers, allWriter, structureWriter);
-
+      writeEmployeeRoleLDIFs(parent, groupToUsers, allWriter, structureWriter);
+      writeEmployeeRoleLDIFs(parent, unitToUsers, allWriter, structureWriter);
+      writeEmployeeRoleLDIFs(parent, jobToUsers, allWriter, structureWriter);      
+      
       allWriter.close();
       structureWriter.close();
     } finally {
@@ -304,6 +309,45 @@ public class LDIFWriter {
     }
   }
   
+  private void addToMap(Map<String, LinkedHashSet<String>> groupToUsers, Employee employee, String key) {
+    if (key == null || key.trim().length() == 0) {
+      return;
+    }
+
+    LinkedHashSet<String> groupEmployees = groupToUsers.get(key);
+    if (groupEmployees == null) {
+      groupEmployees = new LinkedHashSet<String>();
+    }
+    if (!groupEmployees.contains(employee.getUserId())) {
+      groupEmployees.add(employee.getUserId());
+    }
+    groupToUsers.put(key, groupEmployees);
+  }
+  
+  private void writeEmployeeRoleLDIFs(File parent, Map<String, LinkedHashSet<String>> groupToUsers,
+      FileWriter allWriter, FileWriter structureWriter) throws Exception {
+
+    FileWriter writer = null;
+    for (String group : groupToUsers.keySet()) {            
+      Collection<String> users = groupToUsers.get(group);
+
+      try {           
+        String rolename = (ROLE_ + group.toUpperCase()).replaceAll(" ", "_");
+        rolename = rolename.replaceAll("Ä", "A");
+        rolename = rolename.replaceAll("Ö", "O");
+        writer = new FileWriter(new File(parent, rolename + LDIF_FILE_SUFFIX));   
+        writeKokuCommunitiesLDIF(writer, allWriter, rolename, ROLES, users);
+        writeKokuCommunitiesStructureLDIF(structureWriter, rolename, ROLES);
+
+        writer.close();
+      } finally {
+        if (writer != null) {
+          writer.close();
+        }
+      }
+    }
+  }
+  
   private void selectAddedUserPics(Collection<String> piclist) throws Exception {   
     JFileChooser chooser = new JFileChooser(new File("c:/users/hanhian/desktop"));
     chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -365,6 +409,13 @@ public class LDIFWriter {
             writer.close();
           }
         }
+      }
+
+      if (NEUVOLAN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group)
+          || KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group)
+          || KOULUN_TYÖNTEKIJÄ.equals(group)) {
+
+        Collection<String> users = groupToUsers.get(group);
 
         try {
           writer = new FileWriter(new File(parent, EMPLOYEE_ORG_UNIT_FILENAME_PREFIX + group + LDIF_FILE_SUFFIX));
@@ -378,7 +429,28 @@ public class LDIFWriter {
           } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS);
+          } else if (KOULUN_TYÖNTEKIJÄ.equals(group)) {
+            writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_BASIC_EDUCATION, ORG_UNITS, users);
+            writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_BASIC_EDUCATION, ORG_UNITS);
           }
+
+          writer.close();
+        } finally {
+          if (writer != null) {
+            writer.close();
+          }
+        }
+      }
+
+      // write LOK admin and LOK log admin groups
+      if (LOK_ADMIN.equals(group) || LOK_LOG_ADMIN.equals(group)) {
+        Collection<String> users = groupToUsers.get(group);
+
+        try {
+          writer = new FileWriter(new File(parent, group + LDIF_FILE_SUFFIX));
+
+          writeKokuCommunitiesLDIF(writer, allWriter, ROLE_ + group, ROLES, users);
+          writeKokuCommunitiesStructureLDIF(structureWriter, ROLE_ + group, ROLES);
 
           writer.close();
         } finally {
@@ -540,6 +612,7 @@ public class LDIFWriter {
   private void writePersonLDIF(FileWriter writer, FileWriter allWriter, String firstName,
       String lastName, String tel, String email, String pic) throws Exception {
     String userId = getUserID(pic);
+    //String userId = getUserID(pic, firstName, lastName);
     
     writePersonLDIF(writer, userId, firstName, lastName, tel, email, pic);
     writePersonLDIF(allWriter, userId, firstName, lastName, tel, email, pic);
@@ -567,10 +640,18 @@ public class LDIFWriter {
   
   protected String getUserID(String pic){
     if(userIDtoPIC.get(pic) == null){
+    //  throw new RuntimeException("Nooooooooooouu");      
       userIDCounter ++;
       String userID = "user_" + format.format(new Date()) + "_" + userIDCounter;      
       userIDtoPIC.put(pic, userID);
     }  
     return userIDtoPIC.get(pic);
   }
+  
+//  protected String getUserID(String pic, String firstname, String lastname){
+//    if(userIDtoPIC.get(pic) == null){                
+//      userIDtoPIC.put(pic, firstname.toLowerCase() +"."+ lastname.toLowerCase());
+//    }  
+//    return userIDtoPIC.get(pic);
+//  }
 }
