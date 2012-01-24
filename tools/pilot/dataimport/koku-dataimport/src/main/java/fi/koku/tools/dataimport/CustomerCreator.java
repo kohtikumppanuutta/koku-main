@@ -97,9 +97,12 @@ public class CustomerCreator {
     Collection<String> customerIDs = new LinkedHashSet<String>();
     Collection<String> communityIDs = new LinkedHashSet<String>();
 
+    int counter = 0;
     String[] l;
-    while ((l = reader.readNext()) != null) {
+    while ((l = reader.readNext()) != null) {                
       try {
+        System.out.println(counter ++);
+        
         String[] guardians = Utils.splitLines(l[Columns.HELMI_PMS]);
         String[] phones = Utils.splitLines(l[Columns.HELMI_PM_PHONES]);
         String[] emails = Utils.splitLines(l[Columns.HELMI_PM_EMAILS]);

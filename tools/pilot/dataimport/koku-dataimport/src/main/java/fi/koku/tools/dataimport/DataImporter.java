@@ -67,9 +67,7 @@ public class DataImporter {
       if (returnvalue == EMPLOYEE) {
         CSVReader reader = new CSVReader(new FileReader(file));
         try {
-          new LDIFWriter().writeEmployeeLDIF(InputParser.employeeFromCSV(reader), file.getParentFile());
-          
-          // TODO tähän vielä liittymä johonkin jossa kahvan tietoja säilytetään
+          new LDIFWriter().writeEmployeeLDIF(InputParser.employeeFromCSV(reader), file.getParentFile());       
         } finally {
           reader.close();
         }
