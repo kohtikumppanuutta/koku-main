@@ -29,7 +29,7 @@ import fi.koku.services.entity.customer.v1.PhoneNumberType;
 import fi.koku.services.entity.customer.v1.PhoneNumbersType;
 
 public class WSCaller {
-
+  
   private static final String DEPENDANT = "dependant";
   private static final String GUARDIAN = "guardian";
   private static final String EMAIL = "email";
@@ -42,8 +42,11 @@ public class WSCaller {
   private static final String CUSTOMER_SERVICE_PASSWORD = "marko";
   
   //private static final String CUSTOMER_ENDPOINT = "http://kohtikumppanuutta-dev.dmz:8180/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
+  //private static final String CUSTOMER_ENDPOINT = "http://localhost:35353/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
+  //private static final String CUSTOMER_ENDPOINT = "http://localhost:23232/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
   private static final String CUSTOMER_ENDPOINT = "http://localhost:8180/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
   //private static final String CUSTOMER_ENDPOINT = "http://localhost:11000/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
+  
   private static final String KAHVA_ENDPOINT = "http://localhost:8180/kahvaservice-mock-ear-0.0.1-SNAPSHOT-kahvaservice-mock-0.0.3-SNAPSHOT/KahvaServiceEndpointBean";
   //private static final String KAHVA_ENDPOINT = "http://localhost:10000/tampere-services/ldapService";
 
@@ -227,15 +230,18 @@ public class WSCaller {
     eContactInfos.getEContactInfo().add(eContact);
   }
 
-  private XMLGregorianCalendar parseBirthDate(String syntymaaika, String pic) throws Exception {
-    if (syntymaaika == null || syntymaaika.length() != 6) {
-      throw new Exception("Syntymäaika was not valid: " + syntymaaika);
+  private XMLGregorianCalendar parseBirthDate(String syntymaaika, String pic) throws Exception {    
+    String source = null;    
+    if (syntymaaika == null || syntymaaika.length() == 6) {
+      source = pic;
+    } else {
+      source = syntymaaika;
     }
 
     XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar();
-    cal.setDay(Integer.parseInt(syntymaaika.substring(0, 2)));
-    cal.setMonth(Integer.parseInt(syntymaaika.substring(2, 4)));
-    int year = Integer.parseInt(syntymaaika.substring(4, 6));
+    cal.setDay(Integer.parseInt(source.substring(0, 2)));
+    cal.setMonth(Integer.parseInt(source.substring(2, 4)));
+    int year = Integer.parseInt(source.substring(4, 6));
 
     if (pic != null) {
       if (pic.contains("-")) {

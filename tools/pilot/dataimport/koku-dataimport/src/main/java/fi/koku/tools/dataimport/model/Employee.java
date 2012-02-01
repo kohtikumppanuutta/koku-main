@@ -8,6 +8,7 @@ public class Employee extends User{
   private String unit;
   private String unitGroup;
   private String jobTitle;
+  private String registry;
   
   public Employee() {
   }
@@ -51,5 +52,13 @@ public class Employee extends User{
 
   public void setJobTitle(String jobTitle) {
     this.jobTitle = jobTitle;
+  }
+
+  public String getRegistry() {
+    return registry;
+  }
+
+  public void setRegistry(String registry) {
+    this.registry = registry;
   }
 }

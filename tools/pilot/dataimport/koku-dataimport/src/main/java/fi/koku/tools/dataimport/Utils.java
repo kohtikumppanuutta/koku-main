@@ -13,6 +13,7 @@ public class Utils {
 
       for (String id : ids) {
         writer.write(id + ", ");
+//        writer.write("(uid=" + id + ")\n");
         //writer.write(id + "\n");
       }
 
@@ -105,14 +106,23 @@ public class Utils {
     return temp;
   }
   
-  public static void addNotNull(Collection<String> col, String toAdd) {
-    if (toAdd != null && toAdd.length() > 0 && !col.contains("'" + toAdd.trim() + "'")) {
-      col.add("'" + toAdd.trim() + "'");
+  public static String getPreferredEmail(String email, String email2){
+    if (email != null && email.length() > 0) {
+      return email;
+    } else if (email2 != null && email2.length() > 0) {
+      return email2;
     }
+    return null;
+  }
+  
+  public static void addNotNull(Collection<String> col, String toAdd) {
+//    if (toAdd != null && toAdd.length() > 0 && !col.contains("'" + toAdd.trim() + "'")) {
+//      col.add("'" + toAdd.trim() + "'");
+//    }
 
-//     if (toAdd != null && toAdd.length() > 0 && !col.contains(toAdd.trim())) {
-//     col.add(toAdd.trim());
-//     }
+     if (toAdd != null && toAdd.length() > 0 && !col.contains(toAdd.trim())) {
+     col.add(toAdd.trim());
+     }
   }
   
   public static boolean isNotNullOrEmpty(String s) {

@@ -6,10 +6,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Random;
 
 import javax.swing.JFileChooser;
 
@@ -30,8 +30,6 @@ public class LDIFWriter {
   private static final String KK_SERVICEAREA_BASIC_EDUCATION = "kk.servicearea.basicEducation";
   private static final String DAYCAREREGISTRY = "daycareregistry";
   private static final String HEALTHCAREREGISTRY = "healthcareregistry";
-  private static final String LOK_LOG_ADMIN = "LOK_LOG_ADMIN";
-  private static final String LOK_ADMIN = "LOK_ADMIN";
   private static final String ROLE_ = "ROLE_";
   private static final String EMPLOYEE_ORG_UNIT_FILENAME_PREFIX = "employeeOrgUnit_";
   private static final String LDIF_FILE_SUFFIX = ".ldif";
@@ -39,7 +37,7 @@ public class LDIFWriter {
   private static final String KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ = "Kouluterveydenhuollon työntekijä";
   private static final String KOULUN_TYÖNTEKIJÄ = "Koulun työntekijä";
   private static final String PÄIVÄKODIN_TYÖNTEKIJÄ = "Päiväkodin työntekijä";
-  private static final String PÄIVÄKODIN_JOHTAJAT = "Päiväkodin johtajat";
+  private static final String PÄIVÄKODIN_JOHTAJAT = "Päiväkodin esimies";
   private static final String NEUVOLAN_TYÖNTEKIJÄ = "Neuvolan työntekijä";
 
   private static final String VIRKAILIJA = "virkailija";
@@ -56,18 +54,27 @@ public class LDIFWriter {
   private static final String EMPLOYEE_ALL_LDIF_FILE = "Employee_all.ldif";
   
   private Map<String, String> userIDtoPIC = new HashMap<String, String>();
+  private Map<String, String> userIDtoPASS = new HashMap<String, String>();
   private int userIDCounter = 0;
   private SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+  private Random rand;
+  
+  public LDIFWriter() {
+    rand = new Random();
+  }
 
   public void writeEmployeeLDIF(Collection<Employee> employees, File parent) throws Exception {
     Collection<String> userIDs = new LinkedHashSet<String>();
     Map<String, LinkedHashSet<String>> groupToUsers = new HashMap<String, LinkedHashSet<String>>();
     Map<String, LinkedHashSet<String>> unitToUsers = new HashMap<String, LinkedHashSet<String>>();
     Map<String, LinkedHashSet<String>> jobToUsers = new HashMap<String, LinkedHashSet<String>>();
+    Map<String, LinkedHashSet<String>> registryToUsers = new HashMap<String, LinkedHashSet<String>>();
 
     FileWriter writer = null;
     FileWriter allWriter = null;
     FileWriter structureWriter = null;
+    FileWriter passWriter = null;
+    FileWriter eppInitWriter = null;
 
     try {
       allWriter = new FileWriter(new File(parent, EMPLOYEE_ALL_LDIF_FILE));
@@ -75,8 +82,14 @@ public class LDIFWriter {
 
       try {
         writer = new FileWriter(new File(parent, EMPLOYEE_LDIF_FILE));
+        passWriter = new FileWriter(new File(parent, "passwords.txt"));
+        eppInitWriter = new FileWriter(new File(parent, "eppInit.xml"));
 
         for (Employee employee : employees) {
+          writeEmployeePasswordFile(passWriter, employee.getSsn(), employee.getFirstName(), employee.getLastName(),
+              employee.getUserId(), employee.getEmail());          
+          writeEmployeeEPPInitFile(eppInitWriter, employee.getSsn(), employee.getFirstName(), employee.getLastName(),
+              employee.getUserId(), employee.getEmail());          
           writePersonLDIF(writer, allWriter, employee.getUserId(), employee.getFirstName(), employee.getLastName(),
               null, employee.getEmail(), employee.getSsn());
           userIDs.add(employee.getUserId());
@@ -84,11 +97,20 @@ public class LDIFWriter {
           addToMap(groupToUsers, employee, employee.getGroup());
           addToMap(unitToUsers, employee, employee.getUnit());
           addToMap(jobToUsers, employee, employee.getJobTitle());          
+          addToMap(registryToUsers, employee, employee.getRegistry());          
         }
         writer.close();
+        passWriter.close();
+        eppInitWriter.close();
       } finally {
         if (writer != null) {
           writer.close();
+        }
+        if (passWriter != null) {
+          passWriter.close();
+        }
+        if (eppInitWriter != null) {
+          eppInitWriter.close();
         }
       }
       System.out.println("Employee LDIF written");
@@ -97,6 +119,7 @@ public class LDIFWriter {
       writeEmployeeRoleLDIFs(parent, groupToUsers, allWriter, structureWriter);
       writeEmployeeRoleLDIFs(parent, unitToUsers, allWriter, structureWriter);
       writeEmployeeRoleLDIFs(parent, jobToUsers, allWriter, structureWriter);      
+      writeEmployeeRoleLDIFs(parent, registryToUsers, allWriter, structureWriter);      
       
       allWriter.close();
       structureWriter.close();
@@ -111,7 +134,7 @@ public class LDIFWriter {
     }
 
     System.out.println("Employee ALL LDIF written");
-    System.out.println("Employee Structure LDIFs written");
+    System.out.println("Employee Structure LDIFs written");   
   }
 
   public void writeEfficaCustomerLDIF(CSVReader reader, File parent) throws Exception {
@@ -128,6 +151,8 @@ public class LDIFWriter {
     FileWriter writer = null;
     FileWriter allWriter = null;
     FileWriter structureWriter = null;
+    FileWriter passWriter = null;
+    FileWriter eppInitWriter = null;
 
     try {
       allWriter = new FileWriter(new File(parent, EFFICA_ALL_LDIF_FILE));
@@ -135,28 +160,40 @@ public class LDIFWriter {
 
       try {
         writer = new FileWriter(new File(parent, EFFICA_CUSTOMER_LDIF_FILE));
+        passWriter = new FileWriter(new File(parent, "passwords.txt"));
+        eppInitWriter = new FileWriter(new File(parent, "eppInit.xml"));
 
         String[] l;
         while ((l = reader.readNext()) != null) {
 
+          System.out.println(l[Columns.EFFICA_CHILD_PIC]);
+          
           // remove whitespace
           for (int i = 0; i < l.length; i++) {
             l[i] = l[i].trim();
-          }
-              
+          }                    
+                             
           // lapsi
           if (Utils.isNotNullOrEmpty(l[Columns.EFFICA_CHILD_PIC])
               && !addedUserPICSs.contains(l[Columns.EFFICA_CHILD_PIC])) {
+            
+            // call this here to generate child user id for later.
+            getUserID(l[Columns.EFFICA_CHILD_PIC], Utils.getFirstName(l[Columns.EFFICA_CHILD_FIRSTNAMES]), l[Columns.EFFICA_CHILD_LASTNAME]);            
             writePersonLDIF(writer, allWriter, Utils.getFirstName(l[Columns.EFFICA_CHILD_FIRSTNAMES]),
                 l[Columns.EFFICA_CHILD_LASTNAME], l[Columns.EFFICA_CHILD_PHONE], null, l[Columns.EFFICA_CHILD_PIC]);
             addedUserPICSs.add(l[Columns.EFFICA_CHILD_PIC]);
-
             addChildToGroup(childGroupToUIDs, l[Columns.EFFICA_CHILD_UNIT], l[Columns.EFFICA_CHILD_GROUP],
                 l[Columns.EFFICA_CHILD_PIC]);
           }
 
           // päähenkilö
           if (Utils.isNotNullOrEmpty(l[Columns.EFFICA_PM_PIC]) && !addedUserPICSs.contains(l[Columns.EFFICA_PM_PIC])) {
+            writeCustomerPasswordFile(passWriter, l[Columns.EFFICA_PM_PIC],
+                Utils.getFirstName(l[Columns.EFFICA_PM_FIRSTNAMES]), l[Columns.EFFICA_PM_LASTNAME],
+                Utils.getPreferredEmail(l[Columns.EFFICA_PM_EMAIL], l[Columns.EFFICA_PM_EMAIL_2]));
+            writeCustomerEPPInitFile(eppInitWriter, l[Columns.EFFICA_PM_PIC],
+                Utils.getFirstName(l[Columns.EFFICA_PM_FIRSTNAMES]), l[Columns.EFFICA_PM_LASTNAME],
+                Utils.getPreferredEmail(l[Columns.EFFICA_PM_EMAIL], l[Columns.EFFICA_PM_EMAIL_2]));
             writePersonLDIF(writer, allWriter, Utils.getFirstName(l[Columns.EFFICA_PM_FIRSTNAMES]),
                 l[Columns.EFFICA_PM_LASTNAME],
                 getPreferredPhone(l[Columns.EFFICA_PM_PHONE_2], l[Columns.EFFICA_PM_PHONE]),
@@ -167,6 +204,12 @@ public class LDIFWriter {
           // puoliso
           if (Utils.isNotNullOrEmpty(l[Columns.EFFICA_PM_2_PIC])
               && !addedUserPICSs.contains(l[Columns.EFFICA_PM_2_PIC])) {
+            writeCustomerPasswordFile(passWriter, l[Columns.EFFICA_PM_2_PIC],
+                Utils.getFirstName(l[Columns.EFFICA_PM_2_FIRSTNAMES]), l[Columns.EFFICA_PM_2_LASTNAME],
+                Utils.getPreferredEmail(l[Columns.EFFICA_PM_2_EMAIL], l[Columns.EFFICA_PM_2_EMAIL_2]));
+            writeCustomerEPPInitFile(eppInitWriter, l[Columns.EFFICA_PM_2_PIC],
+                Utils.getFirstName(l[Columns.EFFICA_PM_2_FIRSTNAMES]), l[Columns.EFFICA_PM_2_LASTNAME],
+                Utils.getPreferredEmail(l[Columns.EFFICA_PM_2_EMAIL], l[Columns.EFFICA_PM_2_EMAIL_2]));
             writePersonLDIF(writer, allWriter, Utils.getFirstName(l[Columns.EFFICA_PM_2_FIRSTNAMES]),
                 l[Columns.EFFICA_PM_2_LASTNAME], l[Columns.EFFICA_PM_2_PHONE], l[Columns.EFFICA_PM_2_EMAIL],
                 l[Columns.EFFICA_PM_2_PIC]);
@@ -174,9 +217,17 @@ public class LDIFWriter {
           }
         }
         writer.close();
+        passWriter.close();
+        eppInitWriter.close();
       } finally {
         if (writer != null) {
           writer.close();
+        }
+        if (passWriter != null) {
+          passWriter.close();
+        }
+        if (eppInitWriter != null) {
+          eppInitWriter.close();
         }
       }
       System.out.println("Effica Customer LDIF written");
@@ -210,7 +261,7 @@ public class LDIFWriter {
         structureWriter.close();
       }
     }
-    System.out.println("Effica all LDIF written");
+    System.out.println("Effica all LDIF written");   
   }
 
   public void writeHelmiCustomerLDIF(CSVReader reader, File parent) throws Exception {
@@ -219,6 +270,8 @@ public class LDIFWriter {
     FileWriter writer = null;
     FileWriter allWriter = null;
     FileWriter structureWriter = null;
+    FileWriter passWriter = null;
+    FileWriter eppInitWriter = null;
 
     try {
       allWriter = new FileWriter(new File(parent, HELMI_ALL_LDIF_FILE));
@@ -226,7 +279,10 @@ public class LDIFWriter {
 
       try {
         writer = new FileWriter(new File(parent, HELMI_CUSTOMER_LDIF_FILE));
-
+        passWriter = new FileWriter(new File(parent, "passwords.txt"));
+        eppInitWriter = new FileWriter(new File(parent, "eppInit.xml"));
+        // TODO PASSWRITERIÄ ja EPPINITWRITERIÄ EI OO TESTATTU HELMESSÄ
+        
         String[] l;
         while ((l = reader.readNext()) != null) {
 
@@ -243,6 +299,9 @@ public class LDIFWriter {
 
           // lapsi
           if (!addedUserPICs.contains(childPIC)) {
+            // call this here to generate child user id for later.
+            getUserID(childPIC, Utils.getFirstName(l[Columns.HELMI_CHILD_FIRSTNAMES]), l[Columns.HELMI_CHILD_LASTNAME]);
+            
             writePersonLDIF(writer, allWriter, Utils.getFirstName(l[Columns.HELMI_CHILD_FIRSTNAMES]),
                 l[Columns.HELMI_CHILD_LASTNAME], null, null, childPIC);
             addedUserPICs.add(childPIC);
@@ -257,6 +316,10 @@ public class LDIFWriter {
             // the last name first
             String lastName = Utils.getFirstName(guardians[0]);
             String firstNames = Utils.getSecondName(guardians[0]);
+            writeCustomerPasswordFile(passWriter, l[Columns.HELMI_PM_1_PIC], Utils.getFirstName(firstNames), lastName,
+                emails[0]);
+            writeCustomerEPPInitFile(eppInitWriter, l[Columns.HELMI_PM_1_PIC], Utils.getFirstName(firstNames),
+                lastName, emails[0]);
             writePersonLDIF(writer, allWriter, Utils.getFirstName(firstNames), lastName, phones[0], emails[0],
                 l[Columns.HELMI_PM_1_PIC]);
             addedUserPICs.add(l[Columns.HELMI_PM_1_PIC]);
@@ -269,15 +332,27 @@ public class LDIFWriter {
             // the last name first
             String lastName = Utils.getFirstName(guardians[1]);
             String firstNames = Utils.getSecondName(guardians[1]);
+            writeCustomerPasswordFile(passWriter, l[Columns.HELMI_PM_2_PIC], Utils.getFirstName(firstNames), lastName,
+                emails[1]);
+            writeCustomerEPPInitFile(eppInitWriter, l[Columns.HELMI_PM_2_PIC], Utils.getFirstName(firstNames),
+                lastName, emails[1]);
             writePersonLDIF(writer, allWriter, Utils.getFirstName(firstNames), lastName, phones[1], emails[1],
                 l[Columns.HELMI_PM_2_PIC]);
             addedUserPICs.add(l[Columns.HELMI_PM_2_PIC]);
           }
         }
         writer.close();
+        passWriter.close();
+        eppInitWriter.close();
       } finally {
         if (writer != null) {
           writer.close();
+        }
+        if (passWriter != null) {
+          passWriter.close();
+        }
+        if (eppInitWriter != null) {
+          eppInitWriter.close();
         }
       }
       System.out.println("Customer LDIF written");
@@ -335,6 +410,7 @@ public class LDIFWriter {
         String rolename = (ROLE_ + group.toUpperCase()).replaceAll(" ", "_");
         rolename = rolename.replaceAll("Ä", "A");
         rolename = rolename.replaceAll("Ö", "O");
+        rolename = rolename.replaceAll("Å", "A");
         writer = new FileWriter(new File(parent, rolename + LDIF_FILE_SUFFIX));   
         writeKokuCommunitiesLDIF(writer, allWriter, rolename, ROLES, users);
         writeKokuCommunitiesStructureLDIF(structureWriter, rolename, ROLES);
@@ -433,24 +509,6 @@ public class LDIFWriter {
             writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_BASIC_EDUCATION, ORG_UNITS, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_BASIC_EDUCATION, ORG_UNITS);
           }
-
-          writer.close();
-        } finally {
-          if (writer != null) {
-            writer.close();
-          }
-        }
-      }
-
-      // write LOK admin and LOK log admin groups
-      if (LOK_ADMIN.equals(group) || LOK_LOG_ADMIN.equals(group)) {
-        Collection<String> users = groupToUsers.get(group);
-
-        try {
-          writer = new FileWriter(new File(parent, group + LDIF_FILE_SUFFIX));
-
-          writeKokuCommunitiesLDIF(writer, allWriter, ROLE_ + group, ROLES, users);
-          writeKokuCommunitiesStructureLDIF(structureWriter, ROLE_ + group, ROLES);
 
           writer.close();
         } finally {
@@ -612,7 +670,6 @@ public class LDIFWriter {
   private void writePersonLDIF(FileWriter writer, FileWriter allWriter, String firstName,
       String lastName, String tel, String email, String pic) throws Exception {
     String userId = getUserID(pic);
-    //String userId = getUserID(pic, firstName, lastName);
     
     writePersonLDIF(writer, userId, firstName, lastName, tel, email, pic);
     writePersonLDIF(allWriter, userId, firstName, lastName, tel, email, pic);
@@ -626,8 +683,10 @@ public class LDIFWriter {
     writer.write("objectClass: inetOrgPerson" + "\n");
     writer.write("objectClass: top" + "\n");
     writer.write("sn: " + lastName + "\n");
+    //writer.write("description: test" + "\n");
     // userPassword:: dGVzdA==
     writer.write("userPassword: test" + "\n");
+   // writer.write("userPassword: " + getUserPass(pic) + "\n");
     if (tel != null && tel.length() != 0) {
       writer.write("telephoneNumber: " + tel + "\n");
     }
@@ -638,20 +697,98 @@ public class LDIFWriter {
     writer.write("\n");
   }
   
-  protected String getUserID(String pic){
+  private void writeEmployeePasswordFile(FileWriter writer, String pic, String firstName, String lastName, String userID, String email) throws Exception {
+    writer.write("Hetu: " + pic + " Nimi: " + firstName + " " + lastName + " Käyttäjätunnus: "
+        + userID + " Salasana: " + getUserPass(pic));
+    
+    if (email != null) {
+      writer.write(" Email: " + email + "\n");
+    } else {
+      writer.write("\n");
+    }
+  }
+ 
+  private void writeCustomerPasswordFile(FileWriter writer, String pic, String firstName, String lastName, String email) throws Exception {
+    writer.write("Hetu: " + pic + " Nimi: " + firstName + " " + lastName + " Käyttäjätunnus: "
+        + getUserID(pic, firstName, lastName) + " Salasana: " + getUserPass(pic) );
+    
+    if (email != null) {
+      writer.write(" Email: " + email + "\n");
+    } else {
+      writer.write("\n");
+    }
+  }
+  
+  private void writeEmployeeEPPInitFile(FileWriter writer, String pic, String firstName, String lastName,
+      String userID, String email) throws Exception {
+    writeInitFile(writer, pic, firstName, lastName, userID, email);    
+  }
+
+  private void writeCustomerEPPInitFile(FileWriter writer, String pic, String firstName, String lastName, String email) throws Exception {
+    writeInitFile(writer, pic, firstName, lastName, getUserID(pic), email);    
+  }
+  
+  private void writeInitFile(FileWriter writer, String pic, String firstName, String lastName, String userID, String email)
+      throws IOException {
+    writer.write("<value>" + "\n");
+    writer.write("    <object type=\"org.exoplatform.services.organization.OrganizationConfig$User\">" + "\n");
+    writer.write("        <field  name=\"userName\"><string>" + userID + "</string></field>" + "\n");
+    writer.write("        <field  name=\"password\"><string>" + getUserPass(pic) + "</string></field>" + "\n");
+    writer.write("        <field  name=\"firstName\"><string>" + firstName + "</string></field>" + "\n");
+    writer.write("        <field  name=\"lastName\"><string>" + lastName + "</string></field>" + "\n");
+    if (email != null) {
+      writer.write("        <field  name=\"email\"><string>" + email + "</string></field>" + "\n");
+    }
+    writer.write("        <field  name=\"groups\">" + "\n");
+    writer.write("            <string>member:/platform/users</string>" + "\n");
+    writer.write("        </field>" + "\n");
+    writer.write("    </object>" + "\n");
+    writer.write("</value>" + "\n");
+  }
+  
+  
+  private String getUserID(String pic){
     if(userIDtoPIC.get(pic) == null){
-    //  throw new RuntimeException("Nooooooooooouu");      
-      userIDCounter ++;
-      String userID = "user_" + format.format(new Date()) + "_" + userIDCounter;      
-      userIDtoPIC.put(pic, userID);
+      throw new RuntimeException("Nooooooooooouu");      
+//      userIDCounter ++;
+//      String userID = "user_" + format.format(new Date()) + "_" + userIDCounter;      
+//      userIDtoPIC.put(pic, userID);
     }  
     return userIDtoPIC.get(pic);
   }
   
-//  protected String getUserID(String pic, String firstname, String lastname){
-//    if(userIDtoPIC.get(pic) == null){                
-//      userIDtoPIC.put(pic, firstname.toLowerCase() +"."+ lastname.toLowerCase());
-//    }  
-//    return userIDtoPIC.get(pic);
-//  }
+  private String getUserID(String pic, String firstname, String lastname) {
+    if (userIDtoPIC.get(pic) == null) {
+      String username = firstname.toLowerCase() + "." + lastname.toLowerCase();    
+      username = username.replaceAll("ä", "a");
+      username = username.replaceAll("ö", "o");
+      username = username.replaceAll("å", "a");      
+      username = username.replaceAll("é", "e");      
+      username = username.replaceAll("õ", "o");      
+      username = username.replaceAll("ü", "u");      
+      userIDtoPIC.put(pic, username);
+    } else {
+      throw new RuntimeException("22Nooooooooooouu");
+    }
+    return userIDtoPIC.get(pic);
+  }
+  
+  private String getUserPass(String pic){
+    if(userIDtoPASS.get(pic) == null){              
+      userIDtoPASS.put(pic, createPass());
+    }  
+    return userIDtoPASS.get(pic);
+  }
+  
+  private String createPass() {
+    String pass = "";
+    while (pass.length() < 10) {
+      int c = rand.nextInt(122);
+      if ((c > 48 && c < 57) || (c > 65 && c < 90) || (c > 97 && c < 122)) {
+        pass = pass + (char) c;
+      }
+    }
+    return pass;
+  }  
+  
 }
