@@ -57,6 +57,7 @@ public class InputParser {
         employee.setUnit(l[Columns.EMPLOYEE_UNIT]);
         employee.setUnitGroup(l[Columns.EMPLOYEE_UNIT_GROUP]);
         employee.setJobTitle(l[Columns.EMPLOYEE_JOB_TITLE]);
+        employee.setRegistry(l[Columns.EMPLOYEE_REGISTRY]);
         employees.add(employee);
 
         userIDs.add(employee.getUserId());

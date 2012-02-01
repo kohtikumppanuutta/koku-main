@@ -78,4 +78,5 @@ public interface Columns {
   public int EMPLOYEE_UNIT = 6;
   public int EMPLOYEE_UNIT_GROUP = 7;
   public int EMPLOYEE_JOB_TITLE = 8;
+  public int EMPLOYEE_REGISTRY = 9;
 }
