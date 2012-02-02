@@ -460,21 +460,21 @@ public class LDIFWriter {
 
     for (String group : groupToUsers.keySet()) {
 
-      if (NEUVOLAN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group)
-          || KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group)) {
+      if (NEUVOLAN_TYÖNTEKIJÄ.equalsIgnoreCase(group) || PÄIVÄKODIN_TYÖNTEKIJÄ.equalsIgnoreCase(group)
+          || KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equalsIgnoreCase(group) || PÄIVÄKODIN_JOHTAJAT.equalsIgnoreCase(group)) {
 
         Collection<String> users = groupToUsers.get(group);
 
         try {
           writer = new FileWriter(new File(parent, EMPLOYEE_REGISTRY_FILENAME_PREFIX + group + LDIF_FILE_SUFFIX));
 
-          if (NEUVOLAN_TYÖNTEKIJÄ.equals(group)) {
+          if (NEUVOLAN_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, HEALTHCAREREGISTRY, REGISTRIES);
-          } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group)) {
+          } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equalsIgnoreCase(group) || PÄIVÄKODIN_JOHTAJAT.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, DAYCAREREGISTRY, REGISTRIES, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, DAYCAREREGISTRY, REGISTRIES);
-          } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
+          } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, HEALTHCAREREGISTRY, REGISTRIES);
           }
@@ -487,25 +487,25 @@ public class LDIFWriter {
         }
       }
 
-      if (NEUVOLAN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group)
-          || KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group)
-          || KOULUN_TYÖNTEKIJÄ.equals(group)) {
+      if (NEUVOLAN_TYÖNTEKIJÄ.equalsIgnoreCase(group) || PÄIVÄKODIN_TYÖNTEKIJÄ.equalsIgnoreCase(group)
+          || KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equalsIgnoreCase(group) || PÄIVÄKODIN_JOHTAJAT.equalsIgnoreCase(group)
+          || KOULUN_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
 
         Collection<String> users = groupToUsers.get(group);
 
         try {
           writer = new FileWriter(new File(parent, EMPLOYEE_ORG_UNIT_FILENAME_PREFIX + group + LDIF_FILE_SUFFIX));
 
-          if (NEUVOLAN_TYÖNTEKIJÄ.equals(group)) {
+          if (NEUVOLAN_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS);
-          } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equals(group) || PÄIVÄKODIN_JOHTAJAT.equals(group)) {
+          } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equalsIgnoreCase(group) || PÄIVÄKODIN_JOHTAJAT.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS);
-          } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equals(group)) {
+          } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS);
-          } else if (KOULUN_TYÖNTEKIJÄ.equals(group)) {
+          } else if (KOULUN_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_BASIC_EDUCATION, ORG_UNITS, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_BASIC_EDUCATION, ORG_UNITS);
           }
