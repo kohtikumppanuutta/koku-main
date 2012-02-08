@@ -7,7 +7,7 @@
 
 modules='processes services ui'
 vcs_dir_type=tag
-svn_repo_base=https://svn.mermit.fi
+svn_repo_base=https://ext-svn.ixonos
 
 function usage() {
   echo "usage: koku-build.sh -r release_version -c {mark_release | build_packages} [-e]"
@@ -116,9 +116,9 @@ fi
 
 # set runtime variables
 if [ "x" = "x$is_ext_user" ]; then
-  svn_repo_base=$svn_repo_base/projects
+  svn_repo_base=$svn_repo_base.local
 else
-  svn_repo_base=$svn_repo_base/ext
+  svn_repo_base=$svn_repo_base.com
 fi
 
 get_vcs_dir_by_type $vcs_dir_type
