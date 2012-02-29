@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration>
+   <URL_Employee>http://kohtikumppanuutta-demo.dmz:8380/portal</URL_Employee>
+   <URL_Guardian>http://kohtikumppanuutta-demo.dmz:8280/portal</URL_Guardian>
+</Configuration>

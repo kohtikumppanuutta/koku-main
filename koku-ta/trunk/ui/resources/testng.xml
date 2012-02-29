@@ -1,0 +1,22 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+
+<suite name="KoKu - Testikokoelma">
+
+  <test name="Regressiotestaus">
+    <groups>
+      <run>
+        <exclude name="broken-test"/>
+        <include name="smoke-test"/>
+        <include name="IE"/>
+        <include name="Firefox"/>
+      </run>  
+    </groups>
+	
+	<classes>
+	  <class name="ta.MyTest" />
+	</classes>
+	
+   </test>
+</suite>
+ 
+
