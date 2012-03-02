@@ -1,7 +1,6 @@
 package fi.koku.ta.app.page;
 
-import fi.koku.ta.helper.BasePage;
-import fi.koku.ta.helper.BaseTest;
+import fi.koku.ta.helper.*;
 
 import org.openqa.selenium.*;
 
@@ -68,6 +67,8 @@ public class Tyontekija extends BasePage {
 		waitTofindElementWithXPath("//a[text() = 'Logout']").click();
 		
 		waitTofindElementWithXPath("//div[contains(text(), 'Kirjaudu järjestelmään')]");
+
+		captureScreenShot("Esimerkki_Tyontekija_Logout_Vaihe_Suoritettu");
 		
 	}
 	
@@ -111,15 +112,15 @@ public class Tyontekija extends BasePage {
 	 */
 	public void viestit() {
 		
-		driver.findElement(By.xpath("//ul[@id='tabsHeader']/li/a[contains(text(), 'Message')] ")).click();
+		waitTofindElementWithXPath("//ul[@id='tabsHeader']/li/a[contains(text(), 'Message')] ").click();
 		
 		//Ensure that expected elements are found on page
-		driver.findElement(By.xpath("//ul/li[@id='msg_new']/a[text() = 'Uusi viesti']"));
-		driver.findElement(By.xpath("//ul/li[@id='msg_inbox']/a[text() = 'Saapuneet']"));
-		driver.findElement(By.xpath("//ul/li[@id='msg_outbox']/a"));
-		driver.findElement(By.xpath("//ul/li/a[text() = 'Arkistoidut']"));
-		driver.findElement(By.xpath("//ul/li[@id='msg_archive_inbox']/a[text() = 'Saapuneet']"));
-		driver.findElement(By.xpath("//ul/li[@id='msg_archive_outbox']/a"));
+		waitTofindElementWithXPath("//ul/li[@id='msg_new']/a[text() = 'Uusi viesti']");
+		waitTofindElementWithXPath("//ul/li[@id='msg_inbox']/a[text() = 'Saapuneet']");
+		waitTofindElementWithXPath("//ul/li[@id='msg_outbox']/a");
+		waitTofindElementWithXPath("//ul/li/a[text() = 'Arkistoidut']");
+		waitTofindElementWithXPath("//ul/li[@id='msg_archive_inbox']/a[text() = 'Saapuneet']");
+		waitTofindElementWithXPath("//ul/li[@id='msg_archive_outbox']/a");
 		
 	}
 

@@ -40,6 +40,11 @@ public class BaseTest {
 	}
 	
 	
+	public void browserBack() {
+		driver.navigate().back();
+	}
+
+	
 	/*
 	 * Helper method to capture screen shot
 	 */

@@ -1,4 +1,4 @@
-package fi.koku.ta.app.page;
+package fi.koku.ta.app.page.pyynnot;
 
 import fi.koku.ta.helper.BasePage;
 import fi.koku.ta.helper.BaseTest;
@@ -6,9 +6,9 @@ import fi.koku.ta.helper.BaseTest;
 import org.openqa.selenium.*;
 
 
-public class Tyontekija_Pyynnot_Luo_uusi_pohja extends BasePage {
+public class Luo_uusi_pohja extends BasePage {
 
-	public Tyontekija_Pyynnot_Luo_uusi_pohja(BaseTest test) {
+	public Luo_uusi_pohja(BaseTest test) {
 		
 		super(test);
 		
@@ -84,9 +84,5 @@ public class Tyontekija_Pyynnot_Luo_uusi_pohja extends BasePage {
 		driver.findElement(By.xpath("//span[text()='Tallenna kyselypohja']")).click();
 	}
 
-	
-	public void browserBack() {
-		driver.navigate().back();
-	}
 
 }

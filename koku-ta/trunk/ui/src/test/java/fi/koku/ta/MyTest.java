@@ -1,6 +1,9 @@
 package fi.koku.ta;
 
 import fi.koku.ta.app.page.*;
+import fi.koku.ta.app.page.viestit.*;
+import fi.koku.ta.app.page.pyynnot.*;
+
 import fi.koku.ta.helper.BaseTest;
 
 import org.testng.annotations.*;
@@ -18,11 +21,7 @@ public class MyTest extends BaseTest {
 
 	@BeforeTest(alwaysRun=true)
 	public void setup() {
-		
-		FirefoxProfile profile = new FirefoxProfile();
-		//profile.setPreference("network.proxy.type", 0);
 		firefoxDriver = new FirefoxDriver();
-		
 		ieDriver = new InternetExplorerDriver();
 	}
 
@@ -181,34 +180,6 @@ public class MyTest extends BaseTest {
 	}
 	
 	
-	@Test(groups = { "smoke-test", "functional-test", "Firefox" } )
-	public void tc_Firefox_Tyontekija_Viestit() {
-		setupTest(firefoxDriver, Thread.currentThread().getStackTrace());
-		tc_Tyontekija_Viestit();
-	}
-	
-	@Test(groups = { "smoke-test", "functional-test", "IE" } )
-	public void tc_IE_Tyontekija_Viestit() {
-		setupTest(ieDriver, Thread.currentThread().getStackTrace());
-		tc_Tyontekija_Viestit();
-	}
-	
-	public void tc_Tyontekija_Viestit() {
-		
-		Tyontekija tyontekija = new Tyontekija(this);
-		
-		String username="paivi.paivakoti";
-		String password="test";
-		
-		tyontekija.login(username, password);
-		
-		tyontekija.viestit();
-		
-		tyontekija.logout();
-		
-	}
-
-	
 	// About Firefox implementation - Could not get it working reliable -> SKIP Firefox test for now
 
  	@Test(groups = { "smoke-test", "functional-test", "IE" } )
@@ -227,9 +198,7 @@ public class MyTest extends BaseTest {
 		
 		tyontekija.login(username, password);
 		
-		tyontekija.viestit();
-		
-		Tyontekija_Uusi_viesti uusiViesti = new Tyontekija_Uusi_viesti(this);
+		Uusi_viesti uusiViesti = new Uusi_viesti(this);
 		
 		uusiViesti.set_HETU(lapsenHETU);
 		uusiViesti.hae();
@@ -242,12 +211,13 @@ public class MyTest extends BaseTest {
 		uusiViesti.set_Viesti("Testiviestin sisältö...");
 		uusiViesti.laheta();
 		
-		uusiViesti.browserBack();
-
-		//Wait before checking outbox (i.e. not visible immediately)
+		//Do browser back
+		browserBack();
+	
+		//Wait a while before checking outbox (i.e. not visible immediately)
 		pauseSeconds(10);
 		
-		Tyontekija_Lahetetyt lahetetyt= new Tyontekija_Lahetetyt(this);
+		Lahetetyt lahetetyt= new Lahetetyt(this);
 		
 		assert(lahetetyt.subjectFound( TESTIVIESTI_AIHE ));
 					
@@ -279,7 +249,7 @@ public class MyTest extends BaseTest {
 
 		huoltaja.login(username, password);
 		
-		Huoltaja_Saapuneet saapuneet = new Huoltaja_Saapuneet(this);
+		Saapuneet saapuneet = new Saapuneet(this);
 		
 		assert(saapuneet.subjectFound( TESTIVIESTI_AIHE ));
 		
@@ -303,7 +273,7 @@ public class MyTest extends BaseTest {
 
 		tyontekija.login(username, password);
 		
-		Tyontekija_Pyynnot_Luo_uusi_pohja uusiPohja = new Tyontekija_Pyynnot_Luo_uusi_pohja(this);
+		Luo_uusi_pohja uusiPohja = new Luo_uusi_pohja(this);
 		
 		TESTILOMAKKEEN_OTSIKKO = String.format("Testilomake - %s",getTimeStamp());
 		uusiPohja.set_Otsikko( TESTILOMAKKEEN_OTSIKKO );

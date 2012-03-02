@@ -1,3 +1,4 @@
+
 package fi.koku.ta.helper.utils;
 
 import java.awt.Toolkit;

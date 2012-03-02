@@ -1,4 +1,4 @@
-package fi.koku.ta.app.page;
+package fi.koku.ta.app.page.viestit;
 
 import fi.koku.ta.helper.BasePage;
 import fi.koku.ta.helper.BaseTest;
@@ -8,9 +8,9 @@ import org.openqa.selenium.*;
 import java.util.List;
 
 
-public class Tyontekija_Lahetetyt extends BasePage {
+public class Lahetetyt extends BasePage {
 
-	public Tyontekija_Lahetetyt(BaseTest test) {
+	public Lahetetyt(BaseTest test) {
 		
 		super(test);
 		
@@ -21,6 +21,8 @@ public class Tyontekija_Lahetetyt extends BasePage {
 	public boolean subjectFound(String expectedSubject) {
 		
 		//List<WebElement> weList = driver.findElements(By.cssSelector("td.messageItem.msgSubject"));
+		
+		//System.out.format("DEBUG:expectedSubject=%s\n",expectedSubject);
 		
 		for(int j=0;j<10;j++) {
 			List<WebElement> weList = driver.findElements(By.cssSelector("td.messageItem.msgSubject"));
