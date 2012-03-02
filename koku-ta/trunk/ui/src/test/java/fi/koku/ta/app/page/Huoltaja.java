@@ -26,13 +26,19 @@ public class Huoltaja extends BasePage {
 		/*
 		 * Handle difference in Demo and Development environments 
 		 */
-		if(driver.findElements(By.xpath("//a[text() = 'Login']")).size()==0) {
-			String demoXPath="//div[@class='AccountBlock AdministratorUser']";
-		    if(driver.findElements(By.xpath(demoXPath)).size()==1) {
-		    	driver.findElement(By.xpath(demoXPath)).click();
-		    }
-		} else {
-			driver.findElement(By.xpath("//a[text() = 'Login']")).click();
+		for(int i=0;i<30;i++) {
+			if(driver.findElements(By.xpath("//a[text() = 'Login']")).size()>0) {
+				driver.findElement(By.xpath("//a[text() = 'Login']")).click();
+				break;
+			} else {
+				String demoXPath="//div[@class='AccountBlock AdministratorUser']";
+			    if(driver.findElements(By.xpath(demoXPath)).size()>0) {
+			    	driver.findElement(By.xpath(demoXPath)).click();
+			    	break;
+			    } else {
+					pauseSeconds(1);
+			    }
+			}
 		}
 		
 		WebElement we = waitTofindElementWithXPath("//input[@name='username']");
@@ -52,7 +58,6 @@ public class Huoltaja extends BasePage {
 		driver.findElement(By.xpath("//ul/li[@id='msg_archive_inbox']/a[text() = 'Saapuneet']"));
 		driver.findElement(By.xpath("//ul/li[@id='msg_archive_outbox']/a"));
 
-		
 	}
 	
 	

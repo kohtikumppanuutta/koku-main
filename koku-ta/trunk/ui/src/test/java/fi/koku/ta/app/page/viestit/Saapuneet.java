@@ -1,4 +1,4 @@
-package fi.koku.ta.app.page;
+package fi.koku.ta.app.page.viestit;
 
 import fi.koku.ta.helper.BasePage;
 import fi.koku.ta.helper.BaseTest;
@@ -6,9 +6,9 @@ import fi.koku.ta.helper.BaseTest;
 import org.openqa.selenium.*;
 
 
-public class Huoltaja_Saapuneet extends BasePage {
+public class Saapuneet extends BasePage {
 
-	public Huoltaja_Saapuneet(BaseTest test) {
+	public Saapuneet(BaseTest test) {
 		
 		super(test);
 		

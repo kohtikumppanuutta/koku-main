@@ -1,4 +1,4 @@
-package fi.koku.ta.app.page;
+package fi.koku.ta.app.page.viestit;
 
 import fi.koku.ta.helper.BasePage;
 import fi.koku.ta.helper.BaseTest;
@@ -6,9 +6,9 @@ import fi.koku.ta.helper.BaseTest;
 import org.openqa.selenium.*;
 
 
-public class Tyontekija_Uusi_viesti extends BasePage {
+public class Uusi_viesti extends BasePage {
 	
-	public Tyontekija_Uusi_viesti(BaseTest test) {
+	public Uusi_viesti(BaseTest test) {
 		
 		super(test);
 		
@@ -47,10 +47,6 @@ public class Tyontekija_Uusi_viesti extends BasePage {
 	public void laheta() {
 		driver.findElement(By.xpath("//span[text()='Lähetä käyttäjäviesti']")).click();
 		
-	}
-
-	public void browserBack() {
-		driver.navigate().back();
 	}
 
 }
