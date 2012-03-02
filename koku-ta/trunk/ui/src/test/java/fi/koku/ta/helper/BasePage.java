@@ -1,7 +1,7 @@
-package helper;
+package fi.koku.ta.helper;
 
-import helper.config.*;
-import helper.utils.Utils;
+import fi.koku.ta.helper.config.*;
+import fi.koku.ta.helper.utils.Utils;
 
 import org.openqa.selenium.*;
 

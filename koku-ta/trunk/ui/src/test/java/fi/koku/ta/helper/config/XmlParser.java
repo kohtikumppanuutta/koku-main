@@ -1,4 +1,4 @@
-package helper.config;
+package fi.koku.ta.helper.config;
 
 import java.io.IOException;
 import org.w3c.dom.Document;

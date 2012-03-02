@@ -1,7 +1,7 @@
-package app.page;
+package fi.koku.ta.app.page;
 
-import helper.BaseTest;
-import helper.BasePage;
+import fi.koku.ta.helper.BasePage;
+import fi.koku.ta.helper.BaseTest;
 
 import org.openqa.selenium.*;
 
@@ -12,7 +12,7 @@ public class Huoltaja_Saapuneet extends BasePage {
 		
 		super(test);
 		
-		driver.findElement(By.xpath("//ul/li[@id='msg_inbox']/a")).click();
+		waitTofindElementWithXPath("//ul/li[@id='msg_inbox']/a").click();
 		
 	}
 	

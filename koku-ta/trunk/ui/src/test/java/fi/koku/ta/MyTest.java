@@ -1,14 +1,12 @@
-package ta;
+package fi.koku.ta;
 
-import app.page.*;
-import helper.BaseTest;
+import fi.koku.ta.app.page.*;
+import fi.koku.ta.helper.BaseTest;
 
 import org.testng.annotations.*;
 
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.firefox.*;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
 public class MyTest extends BaseTest {
 	
@@ -20,7 +18,11 @@ public class MyTest extends BaseTest {
 
 	@BeforeTest(alwaysRun=true)
 	public void setup() {
+		
+		FirefoxProfile profile = new FirefoxProfile();
+		//profile.setPreference("network.proxy.type", 0);
 		firefoxDriver = new FirefoxDriver();
+		
 		ieDriver = new InternetExplorerDriver();
 	}
 

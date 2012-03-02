@@ -1,10 +1,10 @@
-package helper;
+package fi.koku.ta.helper;
 
 import org.openqa.selenium.WebDriver;
 
-import helper.utils.*;
-import helper.config.Configuration;
-import helper.timestamp.*;
+import fi.koku.ta.helper.config.Configuration;
+import fi.koku.ta.helper.timestamp.*;
+import fi.koku.ta.helper.utils.*;
 
 
 /*

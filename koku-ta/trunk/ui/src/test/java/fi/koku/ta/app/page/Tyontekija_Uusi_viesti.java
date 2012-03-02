@@ -1,7 +1,7 @@
-package app.page;
+package fi.koku.ta.app.page;
 
-import helper.BaseTest;
-import helper.BasePage;
+import fi.koku.ta.helper.BasePage;
+import fi.koku.ta.helper.BaseTest;
 
 import org.openqa.selenium.*;
 
@@ -12,9 +12,9 @@ public class Tyontekija_Uusi_viesti extends BasePage {
 		
 		super(test);
 		
-		driver.findElement(By.xpath("//ul/li[@id='msg_new']/a[text() = 'Uusi viesti']")).click();
+		waitTofindElementWithXPath("//ul/li[@id='msg_new']/a[text() = 'Uusi viesti']").click();
 		
-		WebElement iframe = driver.findElement(By.xpath("//iframe[@class='xforms_container_iframe']"));
+		WebElement iframe = waitTofindElementWithXPath("//iframe[@class='xforms_container_iframe']");
 		driver.switchTo().frame(iframe);
 		
 		//Ensure that expected element is loaded 
