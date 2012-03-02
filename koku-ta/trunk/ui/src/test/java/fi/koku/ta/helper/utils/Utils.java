@@ -1,4 +1,4 @@
-package helper.utils;
+package fi.koku.ta.helper.utils;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;

@@ -1,4 +1,4 @@
-package helper.timestamp;
+package fi.koku.ta.helper.timestamp;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
