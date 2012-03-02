@@ -13,7 +13,7 @@
     </groups>
 	
 	<classes>
-	  <class name="ta.MyTest" />
+	  <class name="fi.koku.ta.MyTest" />
 	</classes>
 	
    </test>
