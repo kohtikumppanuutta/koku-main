@@ -291,7 +291,6 @@ public class WSCaller {
 
   private CustomerServicePortType getCustomerService() throws Exception {
     if (customerService == null) {
-    	CUSTOMER_ENDPOINT = properties.getProperty(CUSTOMER_ENDPOINT);
       CustomerServiceFactory customerServiceFactory = new CustomerServiceFactory(CUSTOMER_SERVICE_USER_ID,
           CUSTOMER_SERVICE_PASSWORD, CUSTOMER_ENDPOINT);
       customerService = customerServiceFactory.getCustomerService();
