@@ -1,6 +1,9 @@
 package fi.koku.tools.dataimport;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Date;
+import java.util.Properties;
 
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -44,17 +47,40 @@ public class WSCaller {
   //private static final String CUSTOMER_ENDPOINT = "http://kohtikumppanuutta-dev.dmz:8180/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
   //private static final String CUSTOMER_ENDPOINT = "http://localhost:35353/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
   //private static final String CUSTOMER_ENDPOINT = "http://localhost:23232/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
-  private static final String CUSTOMER_ENDPOINT = "http://localhost:8180/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
+  //TÄMÄ OLI KÄYTÖSSÄ private static String CUSTOMER_ENDPOINT = "http://localhost:8180/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
+  private static String CUSTOMER_ENDPOINT;
   //private static final String CUSTOMER_ENDPOINT = "http://localhost:11000/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
   //private static final String CUSTOMER_ENDPOINT = "http://localhost:13131/customer-service-ear-0.0.1-SNAPSHOT-customer-service-0.0.1-SNAPSHOT";
   
-  private static final String KAHVA_ENDPOINT = "http://localhost:8180/kahvaservice-mock-ear-0.0.1-SNAPSHOT-kahvaservice-mock-0.0.3-SNAPSHOT/KahvaServiceEndpointBean";
+  private static String KAHVA_ENDPOINT;
+  //TÄMÄ OLI KÄYTÖSSÄ private static String KAHVA_ENDPOINT = "http://localhost:8180/kahvaservice-mock-ear-0.0.1-SNAPSHOT-kahvaservice-mock-0.0.3-SNAPSHOT/KahvaServiceEndpointBean";
   //private static final String KAHVA_ENDPOINT = "http://localhost:10000/tampere-services/ldapService";
 
   private LdapService ldapService;
   private CustomerServicePortType customerService;
   private CommunityServicePortType communityService;
 
+  private Properties properties;
+  
+  public WSCaller() throws IOException {
+	// Read properties file.
+	  properties = new Properties();
+	  try {
+	      properties.load(new FileInputStream("customer.properties"));
+	  } catch (IOException e) {
+		  System.err.println("Could not open customer.properties -file.");
+	      e.printStackTrace();
+	  }
+	// get customer endpoint from customer.properties-file
+  	CUSTOMER_ENDPOINT = properties.getProperty("CUSTOMER_ENDPOINT");
+   // get customer endpoint from customer.properties-file
+	KAHVA_ENDPOINT = properties.getProperty("KAHVA_ENDPOINT");
+	if (CUSTOMER_ENDPOINT==null | KAHVA_ENDPOINT==null )
+	{
+		throw new IOException("CUSTOMER_ENDPOINT or KAHVA_ENDPOINT -properties not defined.");
+	}
+  }
+  
   public User getUserById(String userID) throws Exception {
     try {
       return getLdapService().getUserById(userID);
@@ -265,6 +291,7 @@ public class WSCaller {
 
   private CustomerServicePortType getCustomerService() throws Exception {
     if (customerService == null) {
+    	CUSTOMER_ENDPOINT = properties.getProperty(CUSTOMER_ENDPOINT);
       CustomerServiceFactory customerServiceFactory = new CustomerServiceFactory(CUSTOMER_SERVICE_USER_ID,
           CUSTOMER_SERVICE_PASSWORD, CUSTOMER_ENDPOINT);
       customerService = customerServiceFactory.getCustomerService();

@@ -40,7 +40,7 @@ public class LDIFWriter {
   private static final String PÄIVÄKODIN_TYÖNTEKIJÄ = "Päiväkodin työntekijä";
   private static final String PÄIVÄKODIN_JOHTAJAT = "Päiväkodin esimies";
   private static final String NEUVOLAN_TYÖNTEKIJÄ = "Neuvolan työntekijä";
-
+  
   private static final String VIRKAILIJA = "virkailija";
   private static final String KUNTALAINEN = "kuntalainen";
   private static final String EFFICA_CUSTOMER_GROUP_LDIF_FILE = "EfficaCustomerGroup.ldif";
