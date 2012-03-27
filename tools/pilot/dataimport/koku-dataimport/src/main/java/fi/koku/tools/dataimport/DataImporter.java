@@ -40,7 +40,9 @@ public class DataImporter {
         						"noui 1 = Kahva\n" +
         						"noui 2 = Employee\n" +
         						"noui 3 = Effica\n" +
-        						"noui 4 = Helmi\n" + e.getMessage());
+        						"noui 4 = Helmi\n" +
+        						"noui 5 = Employee PIC\n" +
+        						e.getMessage());
     				}
     				//kahva
         			if(choise == 1)
@@ -61,6 +63,11 @@ public class DataImporter {
         			else if(choise == 4)
         			  {
         				new DataImporter(args,4);
+        			  }
+        			//Employee PIC
+        			else if(choise == 5)
+        			  {
+        				new DataImporter(args,5);
         			  }
         			} catch (Exception e) {
 	        			 e.printStackTrace();
@@ -125,7 +132,7 @@ public class DataImporter {
 
       // Effica Customer
       else if (returnvalue == EFFICA_CUSTOMER) {
-    	  efficaCustomerWriteLDIF(file, caller);
+    	  efficaCustomerWriteLDIF(file, caller, true);
       }
       
       // Helmi Customer
@@ -135,12 +142,7 @@ public class DataImporter {
       
       // Employee Hetu
       else if (returnvalue == EMPLOYEE_PIC) {
-        CSVReader reader = new CSVReader(new FileReader(file));
-        try {
-          new PICWriter().writeEmployeePICFile(reader, caller, file.getParentFile());
-        } finally {
-          reader.close();
-        }
+    	  writeEmployeePICFile(file, caller);        
       }
       
       // Effica Customer Hetu
@@ -207,7 +209,7 @@ public class DataImporter {
       }
     
       // Kahva Employee
-      if (selection == 1) { //KAHVA_EMPLOYEE
+      if (caller!=null && selection == 1) { //KAHVA_EMPLOYEE
         kahvaEmployeeWriteLDIF(file, caller);        
       }
       
@@ -217,14 +219,20 @@ public class DataImporter {
       }
 
       // Effica Customer
-      else if (selection == 3) { //EFFICA_CUSTOMER
-        efficaCustomerWriteLDIF(file, caller);        
+      else if (caller!=null && selection == 3) { //EFFICA_CUSTOMER
+        efficaCustomerWriteLDIF(file, caller, false);        
       }
       
       // Helmi Customer
-      else if (selection == 4) { //HELMI_CUSTOMER 
+      else if (caller!=null && selection == 4) { //HELMI_CUSTOMER 
     	helmiCustomerWriteLDIF(file, caller);
       }      
+      
+     // Employee Hetu
+      else if (caller!=null && selection == 5) { //EMPLOYEE PIC
+    	  writeEmployeePICFile(file, caller);
+      }
+        
       
       System.out.println("Done.");
     }
@@ -254,12 +262,12 @@ private void employeeWriteLDIF(File file) throws Exception
     }
   }
 
-private void efficaCustomerWriteLDIF(File file, WSCaller caller) throws Exception
+private void efficaCustomerWriteLDIF(File file, WSCaller caller, boolean uiVersion) throws Exception
 {
   // Effica Customer
     CSVReader reader = new CSVReader(new FileReader(file));
     try {
-      new LDIFWriter().writeEfficaCustomerLDIF(reader, file.getParentFile());
+      new LDIFWriter().writeEfficaCustomerLDIF(reader, file.getParentFile(), uiVersion );
     } finally {
       reader.close();
     }
@@ -291,6 +299,19 @@ private void helmiCustomerWriteLDIF(File file, WSCaller caller) throws Exception
     }
   }
   
-  
+private void writeEmployeePICFile(File file, WSCaller caller) throws Exception
+{  
+
+//Employee Hetu
+//else if (returnvalue == EMPLOYEE_PIC) {
+  CSVReader reader = new CSVReader(new FileReader(file));
+  try {
+    new PICWriter().writeEmployeePICFile(reader, caller, file.getParentFile());
+  } finally {
+    reader.close();
+  }
+//}
+}
+
 } //end of class
 

@@ -1,9 +1,11 @@
 package fi.koku.tools.dataimport;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.HashMap;
@@ -138,14 +140,17 @@ public class LDIFWriter {
     System.out.println("Employee Structure LDIFs written");   
   }
 
-  public void writeEfficaCustomerLDIF(CSVReader reader, File parent) throws Exception {
+  //boolean uiVersion
+  //true if used UI-version
+  //false if used non-ui-version
+  public void writeEfficaCustomerLDIF(CSVReader reader, File parent, boolean uiVersion) throws Exception {
     Collection<String> addedUserPICSs = new LinkedHashSet<String>();
     Map<String, Collection<String>> childGroupToUIDs = new HashMap<String, Collection<String>>();
 
     Collection<String> previousUserPICSs = new LinkedHashSet<String>();
     
     // if there is already added users to LDAP you can give the pics as csv
-    selectAddedUserPics(previousUserPICSs);
+    selectAddedUserPics(previousUserPICSs, uiVersion);
     
     addedUserPICSs.addAll(previousUserPICSs);
     
@@ -425,14 +430,20 @@ public class LDIFWriter {
     }
   }
   
-  private void selectAddedUserPics(Collection<String> piclist) throws Exception {   
-    JFileChooser chooser = new JFileChooser(new File("c:/users/hanhian/desktop"));
-    chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    int result = chooser.showOpenDialog(null);
+  //gets EfficaCustomerPICs-file 
+  private void selectAddedUserPics(Collection<String> piclist, boolean uiVersion) throws Exception {   
 
-    if (result == JFileChooser.APPROVE_OPTION) {
-      File file = chooser.getSelectedFile();
-      CSVReader reader = new CSVReader(new FileReader(file));
+	  File file;
+	  
+	  if(!uiVersion) { //non-ui-version used
+		file = getNonUiEfficaPICFile();
+	  }
+		
+	  else {
+		  file = getUiEfficaPICFile();
+	  }
+	      
+    CSVReader reader = new CSVReader(new FileReader(file));
       
       String[] l;
       while ((l = reader.readNext()) != null) {
@@ -440,7 +451,7 @@ public class LDIFWriter {
         Utils.addNotNull(piclist, l[0]);
       }
     }  
-  }
+  
   
   private void writeEmployeeGroupLDIFs(File parent, Collection<String> userIDs,
       Map<String, LinkedHashSet<String>> groupToUsers, FileWriter allWriter, FileWriter structureWriter)
@@ -793,6 +804,51 @@ public class LDIFWriter {
       }
     }
     return pass;
-  }  
+  }
+  
+  private File getNonUiEfficaPICFile()
+  {
+    BufferedReader stdin = new BufferedReader ( new InputStreamReader( System.in ) );
+	  String fileName ="";	
+		System.out.println("Give EfficaCustomerPICs-filename: ");
+		try {
+		  fileName = stdin.readLine();
+		} catch (IOException e)	{ //this can be without catch, only with finally
+			try {
+				stdin.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				System.out.println("Could not read filename. Exiting" + e.getMessage());
+			}
+			 
+		}		
+	    File file = new File(fileName + ".txt");
+	    try {
+	    	if (file.exists()){
+	    		System.out.println("txt-file used: " + file.getAbsolutePath());
+	    	}	    	
+		  } catch (SecurityException e)	{
+			     e.printStackTrace();
+				 System.out.println("File " + file.getAbsolutePath() + " does not exist. " 
+				                 + "There was an error while executing dataimport" + e.getMessage());
+				 file = null;
+		}
+	    return file;
+  }
+  
+  private File getUiEfficaPICFile()
+  {			  
+	JFileChooser chooser = new JFileChooser(new File("c:/users/hekkata/desktop"));
+    chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    int result = chooser.showOpenDialog(null);
+
+    if (result == JFileChooser.APPROVE_OPTION) {
+       File file = chooser.getSelectedFile(); 
+       return file;
+       }
+    else return null;    
+    }  
+  
   
 }
