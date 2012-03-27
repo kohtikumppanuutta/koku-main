@@ -66,7 +66,9 @@ public class WSCaller {
 	// Read properties file.
 	  properties = new Properties();
 	  try {
-	      properties.load(new FileInputStream("customer.properties"));
+		  //the base folder is ./, the root of the main.properties file
+		  properties.load(new FileInputStream("./customer.properties"));
+		  System.out.println("customer.properties-file loaded successfully.");
 	  } catch (IOException e) {
 		  System.err.println("Could not open customer.properties -file.");
 	      e.printStackTrace();
@@ -77,8 +79,8 @@ public class WSCaller {
 	KAHVA_ENDPOINT = properties.getProperty("KAHVA_ENDPOINT");
 	if (CUSTOMER_ENDPOINT==null | KAHVA_ENDPOINT==null )
 	{
-		throw new IOException("CUSTOMER_ENDPOINT or KAHVA_ENDPOINT -properties not defined.");
-	}
+		throw new IOException("\nCUSTOMER_ENDPOINT or KAHVA_ENDPOINT -properties not defined.");
+	}	
   }
   
   public User getUserById(String userID) throws Exception {
