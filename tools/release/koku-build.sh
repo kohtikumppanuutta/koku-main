@@ -68,8 +68,20 @@ function build_packages() {
   # do a full, fresh checkout
   for m in $modules; do
     cd $m
-    echo "switching $m to branch $koku_rel_v"
+    echo "info: switching $m to branch $koku_rel_v"
     git checkout $koku_rel_v
+
+	# verify that checked out working is clean
+	st_out=$(git status --porcelain)
+	rv=$?
+	if [ $rv -ne 0 -o "$st_out" ]; then
+	  echo "error: Working copy not clean, exiting."
+	  echo "info: use 'git clean' to clean it"
+	  exit 1
+	else
+	  echo "info: $m is clean"
+	fi
+
     cd ..
   done
 
