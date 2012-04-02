@@ -1,9 +1,8 @@
-
 KoKu project code base consists of the following Git repositories
 
 koku-esb          KoKu ESB layer artifacts (e.g. customized service proxies)
 koku-extras       KoKu extra modules (e.g. optional authentication modules)
-koku-main         KoKu common libraries, test automation, setup files and tools
+koku-main         KoKu common libraries, test automation, setup files and tools etc.
 koku-processes    KoKu BPM process definitions
 koku-service-api  KoKu SOA service layer API artifacts (e.g. service interface descriptions and service client code)
 koku-services     KoKu SOA service layer implementation
