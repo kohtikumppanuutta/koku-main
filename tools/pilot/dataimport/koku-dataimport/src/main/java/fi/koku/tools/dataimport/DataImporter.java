@@ -28,7 +28,7 @@ public class DataImporter {
     	try {
     		if( args.length>0 )
         	{
-    		if(args[0].contains("noui")) //no ui-version
+    		if(args[0].contains("noui")) //no UI-version
     		  {
     			try {
     				//throws exception if choise not defined

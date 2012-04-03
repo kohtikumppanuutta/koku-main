@@ -37,11 +37,11 @@ public class LDIFWriter {
   private static final String EMPLOYEE_ORG_UNIT_FILENAME_PREFIX = "employeeOrgUnit_";
   private static final String LDIF_FILE_SUFFIX = ".ldif";
   private static final String EMPLOYEE_REGISTRY_FILENAME_PREFIX = "employeeRegistry_";
-  private static final String KOULUTERVEYDENHUOLLON_TYÃ–NTEKIJÃ„ = "Kouluterveydenhuollon tyÃ¶ntekijÃ¤";
-  private static final String KOULUN_TYÃ–NTEKIJÃ„ = "Koulun tyÃ¶ntekijÃ¤";
-  private static final String PÃ„IVÃ„KODIN_TYÃ–NTEKIJÃ„ = "PÃ¤ivÃ¤kodin tyÃ¶ntekijÃ¤";
-  private static final String PÃ„IVÃ„KODIN_JOHTAJAT = "PÃ¤ivÃ¤kodin esimies";
-  private static final String NEUVOLAN_TYÃ–NTEKIJÃ„ = "Neuvolan tyÃ¶ntekijÃ¤";
+  private static final String KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ = "Kouluterveydenhuollon tyÃ¶ntekijÃ¤";
+  private static final String KOULUN_TYÖNTEKIJÄ = "Koulun tyÃ¶ntekijÃ¤";
+  private static final String PÄIVÄKODIN_TYÖNTEKIJÄ = "PÃ¤ivÃ¤kodin tyÃ¶ntekijÃ¤";
+  private static final String PÄIVÄKODIN_JOHTAJAT = "PÃ¤ivÃ¤kodin esimies";
+  private static final String NEUVOLAN_TYÖNTEKIJÄ = "Neuvolan tyÃ¶ntekijÃ¤";
   
   private static final String VIRKAILIJA = "virkailija";
   private static final String KUNTALAINEN = "kuntalainen";
@@ -287,7 +287,7 @@ public class LDIFWriter {
         writer = new FileWriter(new File(parent, HELMI_CUSTOMER_LDIF_FILE));
         passWriter = new FileWriter(new File(parent, "passwords.txt"));
         eppInitWriter = new FileWriter(new File(parent, "eppInit.xml"));
-        // TODO PASSWRITERIÃ„ ja EPPINITWRITERIÃ„ EI OO TESTATTU HELMESSÃ„
+        // TODO PASSWRITERIÄ ja EPPINITWRITERIÄ EI OO TESTATTU HELMESSÄ
         
         String[] l;
         while ((l = reader.readNext()) != null) {
@@ -414,8 +414,8 @@ public class LDIFWriter {
 
       try {           
         String rolename = (ROLE_ + group.toUpperCase()).replaceAll(" ", "_");
-        rolename = rolename.replaceAll("Ã„", "A");
-        rolename = rolename.replaceAll("Ã–", "O");
+        rolename = rolename.replaceAll("Ä", "A");
+        rolename = rolename.replaceAll("Ö", "O");
         rolename = rolename.replaceAll("Ã…", "A");
         writer = new FileWriter(new File(parent, rolename + LDIF_FILE_SUFFIX));   
         writeKokuCommunitiesLDIF(writer, allWriter, rolename, ROLES, users);
@@ -472,25 +472,25 @@ public class LDIFWriter {
 
     for (String group : groupToUsers.keySet()) {
 
-      if (NEUVOLAN_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group) || PÃ„IVÃ„KODIN_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group)
-          || KOULUTERVEYDENHUOLLON_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group) || PÃ„IVÃ„KODIN_JOHTAJAT.equalsIgnoreCase(group)
-          || KOULUN_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group)) {
+      if (NEUVOLAN_TYÖNTEKIJÄ.equalsIgnoreCase(group) || PÄIVÄKODIN_TYÖNTEKIJÄ.equalsIgnoreCase(group)
+          || KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equalsIgnoreCase(group) || PÄIVÄKODIN_JOHTAJAT.equalsIgnoreCase(group)
+          || KOULUN_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
 
         Collection<String> users = groupToUsers.get(group);
 
         try {
           writer = new FileWriter(new File(parent, EMPLOYEE_REGISTRY_FILENAME_PREFIX + group + LDIF_FILE_SUFFIX));
 
-          if (NEUVOLAN_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group)) {
+          if (NEUVOLAN_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, HEALTHCAREREGISTRY, REGISTRIES);
-          } else if (PÃ„IVÃ„KODIN_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group) || PÃ„IVÃ„KODIN_JOHTAJAT.equalsIgnoreCase(group)) {
+          } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equalsIgnoreCase(group) || PÄIVÄKODIN_JOHTAJAT.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, DAYCAREREGISTRY, REGISTRIES, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, DAYCAREREGISTRY, REGISTRIES);
-          } else if (KOULUTERVEYDENHUOLLON_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group)) {
+          } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, HEALTHCAREREGISTRY, REGISTRIES, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, HEALTHCAREREGISTRY, REGISTRIES);
-          } else if (KOULUN_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group)) {
+          } else if (KOULUN_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, BASICEDUCATIONREGISTRY, REGISTRIES, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, BASICEDUCATIONREGISTRY, REGISTRIES);
           }        
@@ -502,25 +502,25 @@ public class LDIFWriter {
         }
       }
 
-      if (NEUVOLAN_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group) || PÃ„IVÃ„KODIN_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group)
-          || KOULUTERVEYDENHUOLLON_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group) || PÃ„IVÃ„KODIN_JOHTAJAT.equalsIgnoreCase(group)
-          || KOULUN_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group)) {
+      if (NEUVOLAN_TYÖNTEKIJÄ.equalsIgnoreCase(group) || PÄIVÄKODIN_TYÖNTEKIJÄ.equalsIgnoreCase(group)
+          || KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equalsIgnoreCase(group) || PÄIVÄKODIN_JOHTAJAT.equalsIgnoreCase(group)
+          || KOULUN_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
 
         Collection<String> users = groupToUsers.get(group);
 
         try {
           writer = new FileWriter(new File(parent, EMPLOYEE_ORG_UNIT_FILENAME_PREFIX + group + LDIF_FILE_SUFFIX));
 
-          if (NEUVOLAN_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group)) {
+          if (NEUVOLAN_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_CHILD_HEALTH, ORG_UNITS);
-          } else if (PÃ„IVÃ„KODIN_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group) || PÃ„IVÃ„KODIN_JOHTAJAT.equalsIgnoreCase(group)) {
+          } else if (PÄIVÄKODIN_TYÖNTEKIJÄ.equalsIgnoreCase(group) || PÄIVÄKODIN_JOHTAJAT.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_DAYCARE, ORG_UNITS);
-          } else if (KOULUTERVEYDENHUOLLON_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group)) {
+          } else if (KOULUTERVEYDENHUOLLON_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_SCHOOL_HEALTH, ORG_UNITS);
-          } else if (KOULUN_TYÃ–NTEKIJÃ„.equalsIgnoreCase(group)) {
+          } else if (KOULUN_TYÖNTEKIJÄ.equalsIgnoreCase(group)) {
             writeKokuCommunitiesLDIF(writer, allWriter, KK_SERVICEAREA_BASIC_EDUCATION, ORG_UNITS, users);
             writeKokuCommunitiesStructureLDIF(structureWriter, KK_SERVICEAREA_BASIC_EDUCATION, ORG_UNITS);
           }
