@@ -5,8 +5,8 @@
 # Ixonos / aspluma
 #
 
-modules='processes services ui'
-vcs_dir_type=branch
+modules='koku-processes koku-services koku-ui'
+vcs_dir_type=tag
 svn_repo_base=https://ext-svn.ixonos
 
 function usage() {
@@ -59,38 +59,54 @@ function build_packages() {
   # create release dirs
   mkdir release-$koku_rel_v
   cd "release-$koku_rel_v"
-  mkdir $modules
   mkdir kunpo loora eap
+  EAP_DIR=$PWD/eap
+  KUNPO_DIR=$PWD/kunpo
+  LOORA_DIR=$PWD/loora
+  cd ..
 
   # do a full, fresh checkout
   for m in $modules; do
     cd $m
-    svn co $svn_repo_base/kohtikumppanuutta/$m/$vcs_dir/$koku_rel_v
+    echo "info: switching $m to branch $koku_rel_v"
+    git checkout $koku_rel_v
+
+	# verify that checked out working is clean
+	st_out=$(git status --porcelain)
+	rv=$?
+	if [ $rv -ne 0 -o "$st_out" ]; then
+	  echo "error: Working copy not clean, exiting."
+	  echo "info: use 'git clean' to clean it"
+	  exit 1
+	else
+	  echo "info: $m is clean"
+	fi
+
     cd ..
   done
 
   # build
   # build: services
-  pushd services/$koku_rel_v
+  pushd koku-services
   mvn -Dkoku.build.version=$koku_rel_v clean install
-  cp */target/*.ear intalio/target/palvelut-web-service-*.jar ../../eap
+  cp */target/*.ear intalio/target/palvelut-web-service-*.jar $EAP_DIR
   popd
 
   # build: ui
   # build/ui: kunpo packages
-  pushd ui/$koku_rel_v
+  pushd koku-ui
   mvn -Dkoku.build.version=$koku_rel_v clean install
-  cp kks/target/kks-portlet-*.war pyh/target/pyh-portlet-*.war ../../kunpo
+  cp kks/target/kks-portlet-*.war pyh/target/pyh-portlet-*.war $KUNPO_DIR
   cp arcusys-portlet/koku-palvelut-portlet/target/palvelut-portlet.war arcusys-portlet/koku-message-portlet/target/koku-message-portlet.war \
     arcusys-portlet/koku-taskmanager-portlet/target/koku-taskmanager-portlet.war \
-    arcusys-portlet/koku-navi-portlet/target/koku-navi-portlet.war ../../kunpo
+    arcusys-portlet/koku-navi-portlet/target/koku-navi-portlet.war $KUNPO_DIR
 
   # build/ui: loora packages
   mvn -Dkoku.build.version=$koku_rel_v clean install
-  cp kks/target/kks-portlet-*.war lok/target/lok-portlet-*.war ../../loora
+  cp kks/target/kks-portlet-*.war lok/target/lok-portlet-*.war $LOORA_DIR
   cp arcusys-portlet/koku-palvelut-portlet/target/palvelut-portlet.war arcusys-portlet/koku-message-portlet/target/koku-message-portlet.war \
     arcusys-portlet/koku-taskmanager-portlet/target/koku-taskmanager-portlet.war \
-    arcusys-portlet/koku-navi-portlet/target/koku-navi-portlet.war ../../loora
+    arcusys-portlet/koku-navi-portlet/target/koku-navi-portlet.war $LOORA_DIR
   popd
 }
 
@@ -124,6 +140,8 @@ vcs_dir=$res
 
 case $build_command in
   mark_release)
+  	echo "ERROR: mark_release not yet updated for Git"
+  	exit 1
 	fail_if_vcs_dir_exists "$modules" $vcs_dir_type $vcs_dir
 	echo "$vcs_dir_type $koku_rel_v doesn't exist. creating ${vcs_dir_type}"
 	mark_release "$modules" $vcs_dir_type $vcs_dir
