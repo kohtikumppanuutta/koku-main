@@ -133,8 +133,8 @@ under the License.
 	
 	<server>
       <id>ElasticService.com</id>
-      <username>koku_connector</username>
-      <password>zdugWOqkqE91Ro9!dtj</password>
+      <username>test1</username>
+      <password>xxxxxx</password>
     </server>
 	
   </servers>
