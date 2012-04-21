@@ -82,29 +82,36 @@ function build_packages() {
 	  echo "info: $m is clean"
 	fi
 
+	# set Git revision
+	rev=$(git describe)
+	[ $? -ne 0 ] && echo "error: failed to get Git revision for $m, aborting" && exit 1
+	varname=rev_$m
+	varname=${varname//-/_}
+	eval "$varname=$rev"
+
     cd ..
   done
-
+  
   # build
   # build: services
   pushd koku-services
-  mvn -Dkoku.build.version=$koku_rel_v clean install
+  mvn -Dkoku.build.version=$koku_rel_v -Dkoku.build.vcs-version=$rev_koku_services clean install
   cp */target/*.ear intalio/target/palvelut-web-service-*.jar $EAP_DIR
   popd
 
   # build: ui
   # build/ui: kunpo packages
   pushd koku-ui
-  mvn -Dkoku.build.version=$koku_rel_v clean install
+  mvn -Dkoku.build.version=$koku_rel_v -Dkoku.build.vcs-version=$rev_koku_ui clean install
   cp kks/target/kks-portlet-*.war pyh/target/pyh-portlet-*.war $KUNPO_DIR
   cp arcusys-portlet/koku-palvelut-portlet/target/palvelut-portlet.war arcusys-portlet/koku-message-portlet/target/koku-message-portlet.war \
     arcusys-portlet/koku-taskmanager-portlet/target/koku-taskmanager-portlet.war \
     arcusys-portlet/koku-navi-portlet/target/koku-navi-portlet.war $KUNPO_DIR
 
   # build/ui: loora packages
-  sed -i'' -e 's/\/portlet" prefix=/\/portlet_2_0" prefix=/' {kks,lok}/src/main/webapp/WEB-INF/jsp/*/imports.jsp
+  sed -i'' 's/\/portlet" prefix=/\/portlet_2_0" prefix=/' {kks,lok}/src/main/webapp/WEB-INF/jsp/*/imports.jsp
   sed -i'' '/EPP only: start/,/EPP only: end/d' */src/main/webapp/WEB-INF/web.xml arcusys-portlet/*/src/main/webapp/WEB-INF/web.xml
-  mvn -Dkoku.build.version=$koku_rel_v clean install
+  mvn -Dkoku.build.version=$koku_rel_v -Dkoku.build.vcs-version=$rev_koku_ui clean install
   cp kks/target/kks-portlet-*.war lok/target/lok-portlet-*.war $LOORA_DIR
   cp arcusys-portlet/koku-palvelut-portlet/target/palvelut-portlet.war arcusys-portlet/koku-message-portlet/target/koku-message-portlet.war \
     arcusys-portlet/koku-taskmanager-portlet/target/koku-taskmanager-portlet.war \
