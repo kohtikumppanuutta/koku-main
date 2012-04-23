@@ -67,7 +67,16 @@ function build_packages() {
 
   # do a full, fresh checkout
   for m in $modules; do
+    echo "info: processing $m"
     cd $m
+
+	# verify that the version tag exists
+	st_out=$(git tag -l $koku_rel_v)
+	if [ $? -ne 0 -o "x$st_out" == "x" ]; then
+	  echo "error: version not tagged: $koku_rel_v, aborting"
+	  exit 1
+	fi
+
     echo "info: switching $m to branch $koku_rel_v"
     git checkout $koku_rel_v
 
