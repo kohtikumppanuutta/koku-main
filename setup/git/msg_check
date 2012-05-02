@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# get script dir path
+DIR=${0%/*}
+
+# check commit message format
+if [ ! -e $DIR/msg_check.pl ]; then
+  echo "fatal: msg_check.pl script missing"
+  exit 1
+fi
+perl $DIR/msg_check.pl $1
+RV=$?
+if [ $RV -ne 0 ]; then
+  cat << EOT
+*************************
+fatal: Commit message format is invalid, commit refused.
+Messages should be of the following form:
+
+KOKU-99999: implement Hyper Text Coffee Pot Control Protocol
+   
+Make Xyzw support HTCPCP v1.0 as described by RFC 2324.
+...
+
+*************************
+EOT
+  exit 1
+fi
+
+
+exit 0
