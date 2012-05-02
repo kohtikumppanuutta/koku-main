@@ -8,12 +8,13 @@
 # sh koku-main/setup/git/hooks-install.sh
 #
 
-repos="koku-esb koku-extras koku-main koku-processes koku-service-api koku-services koku-ui"
+repos=`find . -name 'koku-*' -type d -maxdepth 1`
 hooks="commit-msg msg-check.pl"
 
 for i in $repos; do
   echo "installing hook to repository: $i"
   pushd $i/.git/hooks > /dev/null
+  [ $? -ne 0 ] && echo "skipping\n" && continue
 
   # install hooks
   /bin/echo -n "- hook: "
