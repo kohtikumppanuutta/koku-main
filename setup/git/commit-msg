@@ -1,14 +1,19 @@
 #!/bin/sh
 
+#
+# Git client-side commit-msg hook for KoKu.
+# - validates commit message format
+#
+
 # get script dir path
 DIR=${0%/*}
 
 # check commit message format
-if [ ! -e $DIR/msg_check.pl ]; then
-  echo "fatal: msg_check.pl script missing"
+if [ ! -e "$DIR/msg-check.pl" ]; then
+  echo "fatal: msg-check.pl script missing"
   exit 1
 fi
-perl $DIR/msg_check.pl $1
+perl "$DIR/msg-check.pl" $1
 RV=$?
 if [ $RV -ne 0 ]; then
   cat << EOT
